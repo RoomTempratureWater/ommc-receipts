@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { signInWithPassword } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,11 +15,12 @@ export default function LoginPage() {
   const router = useRouter()
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
+    try {
+      await signInWithPassword(email, password)
+      // Use window.location.href for a full page reload to ensure cookies are available
+      window.location.href = '/dashboard'
+    } catch (error: any) {
       setError(error.message)
-    } else {
-      router.push('/')
     }
   }
 

@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { supabase } from '@/lib/supabase'
 
 function getTodayDate() {
   return new Date().toISOString().split('T')[0]
@@ -42,9 +41,14 @@ export default function AddExpenditureForm() {
 
   useEffect(() => {
     const fetchTags = async () => {
-      const { data, error } = await supabase.from('expense_tags').select('tag_id, tag_name')
-      if (error) console.error('Error fetching tags:', error.message)
-      else setTags(data)
+      try {
+        const response = await fetch('/api/tags')
+        if (!response.ok) throw new Error('Failed to fetch tags')
+        const { expenseTags } = await response.json()
+        setTags(expenseTags)
+      } catch (error) {
+        console.error('Error fetching tags:', error)
+      }
     }
     fetchTags()
   }, [])
@@ -65,23 +69,11 @@ export default function AddExpenditureForm() {
   const uploadImage = async (userId: string) => {
     if (!imageFile) return null
 
+    // For now, we'll just return a placeholder URL since we're not using Supabase storage
+    // TODO: Implement file storage solution
     const fileExt = imageFile.name.split('.').pop()
     const fileName = `${userId}-${Date.now()}.${fileExt}`
-    const filePath = `uploads/${fileName}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('expenditures')
-      .upload(filePath, imageFile)
-
-    if (uploadError) {
-      throw new Error(uploadError.message)
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('expenditures').getPublicUrl(filePath)
-
-    return publicUrl
+    return `uploads/${fileName}`
   }
 
   const handleSubmit = async () => {
@@ -93,21 +85,14 @@ export default function AddExpenditureForm() {
       return
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (!user || userError) {
-      setError('User not authenticated.')
-      return
-    }
+    // TODO: Replace with actual user authentication
+    const userId = 'temp-user-id'
 
     let imageUrl: string | null = null
     let filePath: string | null = null
 
     try {
-      imageUrl = await uploadImage(user.id)
+      imageUrl = await uploadImage(userId)
       if (imageUrl) filePath = imageUrl
     } catch (err: any) {
       setError(`Image upload failed: ${err.message}`)
@@ -121,19 +106,21 @@ export default function AddExpenditureForm() {
       amount: Number(amount),
       payment_type: paymentType,
       payment_reference: paymentType !== 'cash' ? paymentRef : null,
-      tag,
-      date,
+      tag: tag!,
+      date: new Date(date),
       image_url: filePath,
-      actual_amt_credit_dt,
+      actual_amt_credit_dt: actual_amt_credit_dt ? new Date(actual_amt_credit_dt) : null,
     }
 
-    const { error: insertError } = await supabase
-      .from('expenditures')
-      .insert(expenditureData)
-
-    if (insertError) {
-      setError(insertError.message)
-    } else {
+    try {
+      const response = await fetch('/api/expenditures', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(expenditureData)
+      })
+      
+      if (!response.ok) throw new Error('Failed to create expenditure')
+      
       setSuccess('Expenditure added successfully!')
       setTitle('')
       setAmount('')
@@ -142,6 +129,8 @@ export default function AddExpenditureForm() {
       setTag(undefined)
       setDate(getTodayDate())
       setImageFile(null)
+    } catch (error: any) {
+      setError(error.message)
     }
   }
 

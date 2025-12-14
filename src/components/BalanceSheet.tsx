@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -39,16 +38,17 @@ export default function BalanceSheet() {
   // Load tags from separate tables
   useEffect(() => {
     const loadTags = async () => {
-      const { data: invTags } = await supabase.from('invoice_tags').select('tag_id, tag_name')
-      const { data: expTags } = await supabase.from('expense_tags').select('tag_id, tag_name')
+      try {
+        const response = await fetch('/api/tags')
+        if (!response.ok) throw new Error('Failed to fetch tags')
+        const { invoiceTags, expenseTags } = await response.json()
 
-      if (invTags) {
-        setInvoiceTagsList(invTags)
-        setSelectedInvoiceTags(invTags.map(t => t.tag_id))
-      }
-      if (expTags) {
-        setExpenseTagsList(expTags)
-        setSelectedExpenseTags(expTags.map(t => t.tag_id))
+        setInvoiceTagsList(invoiceTags)
+        setSelectedInvoiceTags(invoiceTags.map((t: any) => t.tag_id))
+        setExpenseTagsList(expenseTags)
+        setSelectedExpenseTags(expenseTags.map((t: any) => t.tag_id))
+      } catch (error) {
+        console.error('Error loading tags:', error)
       }
     }
     loadTags()
@@ -59,36 +59,50 @@ export default function BalanceSheet() {
     const fetchData = async () => {
       if (!startDate || !endDate) return
 
-      const invoiceQuery = supabase
-        .from('invoices')
-        .select('tag, payment_type, amount')
-        .gte('actual_amt_credit_dt', startDate)
-        .lte('actual_amt_credit_dt', endDate)
+      try {
+        // Fetch invoice data
+        const invoiceParams = new URLSearchParams()
+        invoiceParams.append('startDate', startDate)
+        invoiceParams.append('endDate', endDate)
+        const invoiceResponse = await fetch(`/api/invoices?${invoiceParams.toString()}`)
+        if (!invoiceResponse.ok) throw new Error('Failed to fetch invoices')
+        const { invoices } = await invoiceResponse.json()
+        
+        // Fetch expense data
+        const expenseParams = new URLSearchParams()
+        expenseParams.append('startDate', startDate)
+        expenseParams.append('endDate', endDate)
+        const expenseResponse = await fetch(`/api/expenditures?${expenseParams.toString()}`)
+        if (!expenseResponse.ok) throw new Error('Failed to fetch expenditures')
+        const { expenditures } = await expenseResponse.json()
 
-      const expenseQuery = supabase
-        .from('expenditures')
-        .select('tag, payment_type, amount')
-        .gte('actual_amt_credit_dt', startDate)
-        .lte('actual_amt_credit_dt', endDate)
+        // Extract only the fields we need
+        const invoiceData = invoices.map((inv: any) => ({
+          tag: inv.tag,
+          payment_type: inv.payment_type,
+          amount: inv.amount
+        }))
+        const expenseData = expenditures.map((exp: any) => ({
+          tag: exp.tag,
+          payment_type: exp.payment_type,
+          amount: exp.amount
+        }))
 
-      const [invoiceRes, expenseRes] = await Promise.all([invoiceQuery, expenseQuery])
+        setInvoiceRecords(invoiceData)
+        setExpenseRecords(expenseData)
 
-      if (invoiceRes.data) setInvoiceRecords(invoiceRes.data)
-      if (expenseRes.data) setExpenseRecords(expenseRes.data)
-
-      const { data: actualData, error } = await supabase.rpc('get_net_balance_by_payment_type', {
-        end_date: endDate
-      })
-
-      if (actualData) {
-        const cash = actualData.find((r: any) => r.payment_group === 'cash')?.total_amount || 0
-        const bank = actualData.find((r: any) => r.payment_group === 'bank')?.total_amount || 0
-        setActualCash(cash)
-        setActualBank(bank)
-      }
-
-      if (error) {
-        console.error('Error fetching actual balance:', error)
+        // Call the PostgreSQL function via API
+        const actualResponse = await fetch(`/api/invoices/stats?type=balance&endDate=${endDate}`)
+        if (actualResponse.ok) {
+          const { data } = await actualResponse.json()
+          const result = data as any[]
+          const cash = result.find((r: any) => r.payment_group === 'cash')?.total_amount || 0
+          const bank = result.find((r: any) => r.payment_group === 'bank')?.total_amount || 0
+          setActualCash(cash)
+          setActualBank(bank)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
       }
     }
 
@@ -103,8 +117,9 @@ export default function BalanceSheet() {
       if (!totals[entry.tag]) totals[entry.tag] = { cash: 0, bank: 0 }
 
       const isCash = entry.payment_type === 'cash'
-      if (isCash) totals[entry.tag].cash += entry.amount
-      else totals[entry.tag].bank += entry.amount
+      const amount = Number(entry.amount) || 0 // Ensure amount is a number
+      if (isCash) totals[entry.tag].cash += amount
+      else totals[entry.tag].bank += amount
     }
 
     return totals
@@ -213,15 +228,15 @@ export default function BalanceSheet() {
                 return (
                   <tr key={tagId}>
                     <td>{tagName}</td>
-                    <td className="text-right">₹{cash}</td>
-                    <td className="text-right">₹{bank}</td>
+                    <td className="text-right">₹{cash.toLocaleString()}</td>
+                    <td className="text-right">₹{bank.toLocaleString()}</td>
                   </tr>
                 )
               })}
               <tr className="border-t font-semibold">
                 <td>Total</td>
-                <td className="text-right">₹{totalInvoiceCash}</td>
-                <td className="text-right">₹{totalInvoiceBank}</td>
+                <td className="text-right">₹{totalInvoiceCash.toLocaleString()}</td>
+                <td className="text-right">₹{totalInvoiceBank.toLocaleString()}</td>
               </tr>
             </tbody>
           </table>
@@ -269,15 +284,15 @@ export default function BalanceSheet() {
                 return (
                   <tr key={tagId}>
                     <td>{tagName}</td>
-                    <td className="text-right">₹{cash}</td>
-                    <td className="text-right">₹{bank}</td>
+                    <td className="text-right">₹{cash.toLocaleString()}</td>
+                    <td className="text-right">₹{bank.toLocaleString()}</td>
                   </tr>
                 )
               })}
               <tr className="border-t font-semibold">
                 <td>Total</td>
-                <td className="text-right">₹{totalExpenseCash}</td>
-                <td className="text-right">₹{totalExpenseBank}</td>
+                <td className="text-right">₹{totalExpenseCash.toLocaleString()}</td>
+                <td className="text-right">₹{totalExpenseBank.toLocaleString()}</td>
               </tr>
             </tbody>
           </table>
@@ -289,19 +304,19 @@ export default function BalanceSheet() {
         <h4 className="text-lg font-semibold text-center">Summary</h4>
         <div className="flex justify-between text-base font-medium">
           <span>Current Cash Difference</span>
-          <span className={netCash >= 0 ? 'text-green-600' : 'text-red-600'}>₹{netCash}</span>
+          <span className={netCash >= 0 ? 'text-green-600' : 'text-red-600'}>₹{netCash.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-base font-medium">
           <span>Current Bank Difference</span>
-          <span className={netBank >= 0 ? 'text-green-600' : 'text-red-600'}>₹{netBank}</span>
+          <span className={netBank >= 0 ? 'text-green-600' : 'text-red-600'}>₹{netBank.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-base font-medium border-t pt-2">
           <span>Actual Cash Till Date</span>
-          <span className={actualCash >= 0 ? 'text-green-700' : 'text-red-700'}>₹{actualCash}</span>
+          <span className={actualCash >= 0 ? 'text-green-700' : 'text-red-700'}>₹{actualCash.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-base font-medium">
           <span>Actual Bank Till Date</span>
-          <span className={actualBank >= 0 ? 'text-green-700' : 'text-red-700'}>₹{actualBank}</span>
+          <span className={actualBank >= 0 ? 'text-green-700' : 'text-red-700'}>₹{actualBank.toLocaleString()}</span>
         </div>
       </Card>
     </div>

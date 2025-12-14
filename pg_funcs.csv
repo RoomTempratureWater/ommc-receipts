@@ -1,0 +1,113 @@
+schema_name,function_name,arguments,return_type
+auth,email,"",text
+auth,jwt,"",jsonb
+auth,role,"",text
+auth,uid,"",uuid
+extensions,armor,bytea,text
+extensions,armor,"bytea, text[], text[]",text
+extensions,crypt,"text, text",text
+extensions,dearmor,text,bytea
+extensions,decrypt,"bytea, bytea, text",bytea
+extensions,decrypt_iv,"bytea, bytea, bytea, text",bytea
+extensions,digest,"bytea, text",bytea
+extensions,digest,"text, text",bytea
+extensions,encrypt,"bytea, bytea, text",bytea
+extensions,encrypt_iv,"bytea, bytea, bytea, text",bytea
+extensions,gen_random_bytes,integer,bytea
+extensions,gen_random_uuid,"",uuid
+extensions,gen_salt,"text, integer",text
+extensions,gen_salt,text,text
+extensions,grant_pg_cron_access,"",event_trigger
+extensions,grant_pg_graphql_access,"",event_trigger
+extensions,grant_pg_net_access,"",event_trigger
+extensions,hmac,"bytea, bytea, text",bytea
+extensions,hmac,"text, text, text",bytea
+extensions,pg_stat_statements,"showtext boolean, OUT userid oid, OUT dbid oid, OUT toplevel boolean, OUT queryid bigint, OUT query text, OUT plans bigint, OUT total_plan_time double precision, OUT min_plan_time double precision, OUT max_plan_time double precision, OUT mean_plan_time double precision, OUT stddev_plan_time double precision, OUT calls bigint, OUT total_exec_time double precision, OUT min_exec_time double precision, OUT max_exec_time double precision, OUT mean_exec_time double precision, OUT stddev_exec_time double precision, OUT rows bigint, OUT shared_blks_hit bigint, OUT shared_blks_read bigint, OUT shared_blks_dirtied bigint, OUT shared_blks_written bigint, OUT local_blks_hit bigint, OUT local_blks_read bigint, OUT local_blks_dirtied bigint, OUT local_blks_written bigint, OUT temp_blks_read bigint, OUT temp_blks_written bigint, OUT blk_read_time double precision, OUT blk_write_time double precision, OUT temp_blk_read_time double precision, OUT temp_blk_write_time double precision, OUT wal_records bigint, OUT wal_fpi bigint, OUT wal_bytes numeric, OUT jit_functions bigint, OUT jit_generation_time double precision, OUT jit_inlining_count bigint, OUT jit_inlining_time double precision, OUT jit_optimization_count bigint, OUT jit_optimization_time double precision, OUT jit_emission_count bigint, OUT jit_emission_time double precision",SETOF record
+extensions,pg_stat_statements_info,"OUT dealloc bigint, OUT stats_reset timestamp with time zone",record
+extensions,pg_stat_statements_reset,"userid oid DEFAULT 0, dbid oid DEFAULT 0, queryid bigint DEFAULT 0",void
+extensions,pgp_armor_headers,"text, OUT key text, OUT value text",SETOF record
+extensions,pgp_key_id,bytea,text
+extensions,pgp_pub_decrypt,"bytea, bytea, text",text
+extensions,pgp_pub_decrypt,"bytea, bytea, text, text",text
+extensions,pgp_pub_decrypt,"bytea, bytea",text
+extensions,pgp_pub_decrypt_bytea,"bytea, bytea, text, text",bytea
+extensions,pgp_pub_decrypt_bytea,"bytea, bytea, text",bytea
+extensions,pgp_pub_decrypt_bytea,"bytea, bytea",bytea
+extensions,pgp_pub_encrypt,"text, bytea",bytea
+extensions,pgp_pub_encrypt,"text, bytea, text",bytea
+extensions,pgp_pub_encrypt_bytea,"bytea, bytea",bytea
+extensions,pgp_pub_encrypt_bytea,"bytea, bytea, text",bytea
+extensions,pgp_sym_decrypt,"bytea, text, text",text
+extensions,pgp_sym_decrypt,"bytea, text",text
+extensions,pgp_sym_decrypt_bytea,"bytea, text, text",bytea
+extensions,pgp_sym_decrypt_bytea,"bytea, text",bytea
+extensions,pgp_sym_encrypt,"text, text",bytea
+extensions,pgp_sym_encrypt,"text, text, text",bytea
+extensions,pgp_sym_encrypt_bytea,"bytea, text, text",bytea
+extensions,pgp_sym_encrypt_bytea,"bytea, text",bytea
+extensions,pgrst_ddl_watch,"",event_trigger
+extensions,pgrst_drop_watch,"",event_trigger
+extensions,set_graphql_placeholder,"",event_trigger
+extensions,uuid_generate_v1,"",uuid
+extensions,uuid_generate_v1mc,"",uuid
+extensions,uuid_generate_v3,"namespace uuid, name text",uuid
+extensions,uuid_generate_v4,"",uuid
+extensions,uuid_generate_v5,"namespace uuid, name text",uuid
+extensions,uuid_nil,"",uuid
+extensions,uuid_ns_dns,"",uuid
+extensions,uuid_ns_oid,"",uuid
+extensions,uuid_ns_url,"",uuid
+extensions,uuid_ns_x500,"",uuid
+pgbouncer,get_auth,p_usename text,"TABLE(username text, password text)"
+public,backfill_invoice_short_ids,batch_size integer DEFAULT 1000,integer
+public,create_invoice_with_short_id,"phone text, name text, title text, amount numeric, date date, tag text, address text, effective_from date, effective_to date, user_id uuid, payment_type text, payment_reference text, actual_amt_credit_dt date",SETOF invoices
+public,gen_short_id,"",text
+public,generate_short_id,"",text
+public,get_cash_bank_summary,end_date date,"TABLE(total_amount numeric, payment_group text)"
+public,get_invoice_total,"phone_filter text, tag_filter uuid, max_date date",numeric
+public,get_monthly_totals,"from_date timestamp without time zone, phone_filter text, tag_filter uuid, max_date date","TABLE(month text, total numeric)"
+public,get_net_balance_by_payment_type,end_date date,"TABLE(total_amount numeric, payment_group text)"
+public,insert_invoice_with_short_id,"phone text, name text, title text, amount numeric, date date, tag uuid, address text, effective_from date, effective_to date, user_id uuid, payment_type text, payment_reference text",SETOF invoices
+public,insert_invoice_with_short_id,"phone text, name text, title text, amount numeric, date date, tag uuid, address text, effective_from date, effective_to date, user_id uuid, payment_type text, payment_reference text, actual_amt_credit_dt date",SETOF invoices
+public,invoice_attributions,"","TABLE(invoice_id uuid, phone character varying, effective_month date, amount numeric)"
+realtime,apply_rls,"wal jsonb, max_record_bytes integer DEFAULT (1024 * 1024)",SETOF realtime.wal_rls
+realtime,broadcast_changes,"topic_name text, event_name text, operation text, table_name text, table_schema text, new record, old record, level text DEFAULT 'ROW'::text",void
+realtime,build_prepared_statement_sql,"prepared_statement_name text, entity regclass, columns realtime.wal_column[]",text
+realtime,cast,"val text, type_ regtype",jsonb
+realtime,check_equality_op,"op realtime.equality_op, type_ regtype, val_1 text, val_2 text",boolean
+realtime,is_visible_through_filters,"columns realtime.wal_column[], filters realtime.user_defined_filter[]",boolean
+realtime,list_changes,"publication name, slot_name name, max_changes integer, max_record_bytes integer",SETOF realtime.wal_rls
+realtime,quote_wal2json,entity regclass,text
+realtime,send,"payload jsonb, event text, topic text, private boolean DEFAULT true",void
+realtime,subscription_check_filters,"",trigger
+realtime,to_regrole,role_name text,regrole
+realtime,topic,"",text
+storage,add_prefixes,"_bucket_id text, _name text",void
+storage,can_insert_object,"bucketid text, name text, owner uuid, metadata jsonb",void
+storage,delete_leaf_prefixes,"bucket_ids text[], names text[]",void
+storage,delete_prefix,"_bucket_id text, _name text",boolean
+storage,delete_prefix_hierarchy_trigger,"",trigger
+storage,enforce_bucket_name_length,"",trigger
+storage,extension,name text,text
+storage,filename,name text,text
+storage,foldername,name text,text[]
+storage,get_level,name text,integer
+storage,get_prefix,name text,text
+storage,get_prefixes,name text,text[]
+storage,get_size_by_bucket,"","TABLE(size bigint, bucket_id text)"
+storage,list_multipart_uploads_with_delimiter,"bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, next_key_token text DEFAULT ''::text, next_upload_token text DEFAULT ''::text","TABLE(key text, id text, created_at timestamp with time zone)"
+storage,list_objects_with_delimiter,"bucket_id text, prefix_param text, delimiter_param text, max_keys integer DEFAULT 100, start_after text DEFAULT ''::text, next_token text DEFAULT ''::text","TABLE(name text, id uuid, metadata jsonb, updated_at timestamp with time zone)"
+storage,lock_top_prefixes,"bucket_ids text[], names text[]",void
+storage,objects_delete_cleanup,"",trigger
+storage,objects_insert_prefix_trigger,"",trigger
+storage,objects_update_cleanup,"",trigger
+storage,objects_update_level_trigger,"",trigger
+storage,objects_update_prefix_trigger,"",trigger
+storage,operation,"",text
+storage,prefixes_delete_cleanup,"",trigger
+storage,prefixes_insert_trigger,"",trigger
+storage,search,"prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text","TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)"
+storage,search_legacy_v1,"prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text","TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)"
+storage,search_v1_optimised,"prefix text, bucketname text, limits integer DEFAULT 100, levels integer DEFAULT 1, offsets integer DEFAULT 0, search text DEFAULT ''::text, sortcolumn text DEFAULT 'name'::text, sortorder text DEFAULT 'asc'::text","TABLE(name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)"
+storage,search_v2,"prefix text, bucket_name text, limits integer DEFAULT 100, levels integer DEFAULT 1, start_after text DEFAULT ''::text, sort_order text DEFAULT 'asc'::text, sort_column text DEFAULT 'name'::text, sort_column_after text DEFAULT ''::text","TABLE(key text, name text, id uuid, updated_at timestamp with time zone, created_at timestamp with time zone, last_accessed_at timestamp with time zone, metadata jsonb)"
+storage,update_updated_at_column,"",trigger

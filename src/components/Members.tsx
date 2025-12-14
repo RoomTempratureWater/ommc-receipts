@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
 
 interface Member {
   first_name: string
@@ -36,16 +35,18 @@ export default function MembersList() {
 
   useEffect(() => {
     const fetchMembers = async () => {
-      const { data, error } = await supabase.from('members').select('*')
-      if (!error && data) {
-        const withIds = data.map((m: any) => ({
+      try {
+        const response = await fetch('/api/members')
+        if (!response.ok) throw new Error('Failed to fetch members')
+        const { members } = await response.json()
+        const withIds = members.map((m: any) => ({
           ...m,
           id: generateMemberId(m.phone, `${m.first_name}${m.last_name}`),
         }))
         setMembers(withIds)
         setFiltered(withIds)
-      } else {
-        console.error('Error fetching members:', error?.message)
+      } catch (error) {
+        console.error('Error fetching members:', error)
       }
     }
     fetchMembers()
@@ -73,26 +74,25 @@ export default function MembersList() {
     }
 
     setLoading(true)
-    const { data, error } = await supabase
-      .from('members')
-      .insert({
-        first_name: newFirstName,
-        last_name: newLastName,
-        phone: newPhone,
-        address: newAddress,
+
+    try {
+      const response = await fetch('/api/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: newFirstName,
+          last_name: newLastName,
+          phone: newPhone,
+          address: newAddress,
+        })
       })
-      .select('*')
-      .single()
+      
+      if (!response.ok) throw new Error('Failed to create member')
+      const { member } = await response.json()
 
-    setLoading(false)
-
-    if (error) {
-      console.error('Error adding member:', error.message)
-      alert('Error adding member.')
-    } else if (data) {
       const newMember = {
-        ...data,
-        id: generateMemberId(data.phone, `${data.first_name}${data.last_name}`),
+        ...member,
+        id: generateMemberId(member.phone, `${member.first_name}${member.last_name}`),
       }
       setMembers(prev => [...prev, newMember])
       setFiltered(prev => [...prev, newMember])
@@ -101,6 +101,11 @@ export default function MembersList() {
       setNewLastName('')
       setNewPhone('')
       setNewAddress('')
+    } catch (error) {
+      console.error('Error adding member:', error)
+      alert('Error adding member.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -108,14 +113,18 @@ export default function MembersList() {
     const confirmDelete = window.confirm('Are you sure you want to delete this member?')
     if (!confirmDelete) return
 
-    const { error } = await supabase.from('members').delete().eq('phone', phone)
-
-    if (error) {
-      console.error('Error deleting member:', error.message)
-      alert('Error deleting member.')
-    } else {
+    try {
+      const response = await fetch(`/api/members?phone=${encodeURIComponent(phone)}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) throw new Error('Failed to delete member')
+      
       setMembers(prev => prev.filter(m => m.id !== memberId))
       setFiltered(prev => prev.filter(m => m.id !== memberId))
+    } catch (error) {
+      console.error('Error deleting member:', error)
+      alert('Error deleting member.')
     }
   }
 

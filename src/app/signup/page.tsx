@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { signUp } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -47,12 +47,12 @@ export default function SignupPage() {
     }
     
     if (isValid == true) {
-      const { error } = await supabase.auth.signUp({ email, password })
-      if (error) {
+      try {
+        await signUp(email, password)
+        alert("account created successfully! You are now logged in.")
+        router.push('/dashboard')
+      } catch (error: any) {
         setError(error.message)
-      } else {
-        alert("account created succesfully! login now")
-        router.push('/')
       }
     } else {
       console.log("key didnt match")

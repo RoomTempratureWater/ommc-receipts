@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
 import argon2 from 'argon2';
 
 export async function POST(request: NextRequest) {
@@ -7,14 +7,12 @@ export async function POST(request: NextRequest) {
     const { password } = await request.json();
 
     // Fetch all hashed keys from DB
-    const { data, error } = await supabase.from('keys').select('key');
-
-    if (error) {
-      return NextResponse.json({ error: error.message, message: false }, { status: 500 });
-    }
+    // Note: The 'keys' table is not in the Prisma schema, so this might need to be added
+    // For now, we'll use a raw query or create the table
+    const keys = await db.$queryRaw`SELECT key FROM keys`;
 
     // Verify if password matches any stored hash
-    for (const hashedKeyObj of data) {
+    for (const hashedKeyObj of keys as any[]) {
       const hashedKey = hashedKeyObj.key;
       const isValid = await argon2.verify(hashedKey, password);
       if (isValid) {

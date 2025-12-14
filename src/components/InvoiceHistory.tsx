@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
@@ -67,8 +66,14 @@ export default function InvoiceHistory() {
 
   useEffect(() => {
     const fetchTags = async () => {
-      const { data, error } = await supabase.from('invoice_tags').select('tag_id, tag_name')
-      if (!error && data) setTags(data)
+      try {
+        const response = await fetch('/api/invoice-tags')
+        if (!response.ok) throw new Error('Failed to fetch tags')
+        const { tags } = await response.json()
+        setTags(tags)
+      } catch (error) {
+        console.error('Error fetching tags:', error)
+      }
     }
     fetchTags()
   }, [])
@@ -82,24 +87,26 @@ export default function InvoiceHistory() {
     paymentRef?: string,
     paymentType?: string
   ) => {
-    let query = supabase
-      .from('invoices')
-      .select('*, tags(tag_name)')
-      .order('created_at', { ascending: false })
-      .range((pageNum - 1) * pageSize, pageNum * pageSize - 1)
+    try {
+      const params = new URLSearchParams()
+      if (phone.trim()) params.append('phone', phone.trim())
+      if (tagId && tagId !== '__all__') params.append('tagId', tagId)
+      if (paymentRef?.trim()) params.append('paymentRef', paymentRef.trim())
+      if (paymentType && paymentType !== '__all__') params.append('paymentType', paymentType)
+      if (maxDate) params.append('maxDate', maxDate)
+      if (fromDate) params.append('fromDate', fromDate)
+      if (onlyPendingCredit) params.append('onlyPendingCredit', 'true')
+      params.append('page', pageNum.toString())
+      params.append('pageSize', pageSize.toString())
 
-    if (phone.trim()) query = query.eq('phone', phone.trim())
-    if (tagId && tagId !== '__all__') query = query.eq('tag', tagId)
-    if (paymentRef?.trim()) query = query.ilike('payment_reference', `%${paymentRef.trim()}%`)
-    if (paymentType && paymentType !== '__all__') query = query.eq('payment_type', paymentType)
-    if (maxDate) query = query.lte('created_at', maxDate + 'T23:59:59')
-    if (fromDate) query = query.gte('created_at', fromDate + 'T00:00:00')
-    if (onlyPendingCredit) query = query.is('actual_amt_credit_dt', null)
+      const response = await fetch(`/api/invoices?${params.toString()}`)
+      if (!response.ok) throw new Error('Failed to fetch invoices')
+      const { invoices } = await response.json()
 
-    const { data, error } = await query
-    if (!error && data) {
-      if (pageNum === 1) setInvoices(data)
-      else setInvoices(prev => [...prev, ...data])
+      if (pageNum === 1) setInvoices(invoices)
+      else setInvoices(prev => [...prev, ...invoices])
+    } catch (error) {
+      console.error('Error fetching invoices:', error)
     }
   }
 
@@ -108,24 +115,41 @@ export default function InvoiceHistory() {
     fromDate.setMonth(fromDate.getMonth() - 11)
     fromDate.setDate(1)
 
-    const { data } = await supabase.rpc('get_monthly_totals', {
-      from_date: fromDate.toISOString(),
-      max_date: dateLimit || null,
-      phone_filter: phone.trim() || null,
-      tag_filter: !tagId || tagId === '__all__' ? null : tagId,
-    })
+    try {
+      const params = new URLSearchParams()
+      params.append('type', 'monthly')
+      params.append('fromDate', fromDate.toISOString())
+      if (dateLimit) params.append('toDate', dateLimit)
+      if (phone.trim()) params.append('phone', phone.trim())
+      if (tagId && tagId !== '__all__') params.append('tagId', tagId)
 
-    if (data) setMonthlyTotals(data)
+      const response = await fetch(`/api/invoices/stats?${params.toString()}`)
+      if (!response.ok) throw new Error('Failed to fetch graph data')
+      const { data } = await response.json()
+      setMonthlyTotals(data)
+    } catch (error) {
+      console.error('Error fetching graph data:', error)
+    }
   }
 
   const fetchTotalAmount = async (phone = '', tagId?: string, dateLimit?: string) => {
-    const { data, error } = await supabase.rpc('get_invoice_total', {
-      phone_filter: phone.trim() || null,
-      tag_filter: !tagId || tagId === '__all__' ? null : tagId,
-      max_date: dateLimit || null,
-    })
+    try {
+      const params = new URLSearchParams()
+      params.append('type', 'total')
+      if (phone.trim()) params.append('phone', phone.trim())
+      if (tagId && tagId !== '__all__') params.append('tagId', tagId)
+      if (dateLimit) params.append('toDate', dateLimit)
 
-    if (!error && data !== null) setTotalAmount(data)
+      const response = await fetch(`/api/invoices/stats?${params.toString()}`)
+      if (!response.ok) throw new Error('Failed to fetch total amount')
+      const { data } = await response.json()
+      
+      if (data && data[0] && data[0].total !== null) {
+        setTotalAmount(data[0].total)
+      }
+    } catch (error) {
+      console.error('Error fetching total amount:', error)
+    }
   }
 
   useEffect(() => {
@@ -138,12 +162,19 @@ export default function InvoiceHistory() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return
     setLoadingDelete(id)
-    const { error } = await supabase.from('invoices').delete().eq('id', id)
-    setLoadingDelete(null)
-    if (!error) {
+    try {
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: 'DELETE'
+      })
+      if (!response.ok) throw new Error('Failed to delete invoice')
+      
       setInvoices(invoices => invoices.filter(inv => inv.id !== id))
       fetchGraphData(filterPhone, filterTag, maxDate)
       fetchTotalAmount(filterPhone, filterTag, maxDate)
+    } catch (error) {
+      console.error('Error deleting invoice:', error)
+    } finally {
+      setLoadingDelete(null)
     }
   }
 

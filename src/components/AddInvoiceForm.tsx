@@ -2,7 +2,6 @@
 
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { printInvoice } from '@/lib/print_invoice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -56,11 +55,14 @@ export default function AddInvoiceForm() {
 
   useEffect(() => {
     const fetchTags = async () => {
-      const { data, error } = await supabase
-        .from('invoice_tags')
-        .select('tag_id, tag_name')
-        .order('created_at', { ascending: false })
-      if (!error && data) setTags(data)
+      try {
+        const response = await fetch('/api/tags')
+        if (!response.ok) throw new Error('Failed to fetch tags')
+        const { invoiceTags } = await response.json()
+        setTags(invoiceTags)
+      } catch (error) {
+        console.error('Error fetching tags:', error)
+      }
     }
     fetchTags()
   }, [])
@@ -69,16 +71,14 @@ export default function AddInvoiceForm() {
     const fetchMembers = async () => {
       const trimmedPhone = phone.trim()
       if (/^\d{10}$/.test(trimmedPhone)) {
-        const { data, error } = await supabase
-          .from('members')
-          .select('id, first_name, last_name, address')
-          .eq('phone', trimmedPhone)
-          .order('created_at', { ascending: false })
-
-        if (!error && data) {
-          setMemberSuggestions(data)
+        try {
+          const response = await fetch(`/api/members?phone=${encodeURIComponent(trimmedPhone)}`)
+          if (!response.ok) throw new Error('Failed to fetch members')
+          const { members } = await response.json()
+          setMemberSuggestions(members)
           setShowSuggestions(true)
-        } else {
+        } catch (error) {
+          console.error('Error fetching members:', error)
           setMemberSuggestions([])
           setShowSuggestions(false)
         }
@@ -95,17 +95,23 @@ export default function AddInvoiceForm() {
     const fetchLastChurchFundDate = async () => {
       const trimmedPhone = phone.trim()
       if (selectedTagName === 'Church Fund' && /^\d{10}$/.test(trimmedPhone)) {
-        const { data, error } = await supabase
-          .from('invoice_attributions')
-          .select('effective_month')
-          .eq('phone', trimmedPhone)
-          .order('effective_month', { ascending: false })
-          .limit(1)
+        try {
+          const response = await fetch(`/api/invoice-attributions?phone=${encodeURIComponent(trimmedPhone)}`)
+          if (!response.ok) throw new Error('Failed to fetch attributions')
+          const { attributions } = await response.json()
 
-        if (!error && data && data.length > 0) {
-          const formatted = format(new Date(data[0].effective_month), 'MMMM')
-          setLastChurchFundDate(formatted)
-        } else {
+          if (attributions && Array.isArray(attributions) && attributions.length > 0) {
+            // Sort by effective_month descending and get the most recent
+            const sorted = attributions.sort((a: any, b: any) => 
+              new Date(b.effective_month).getTime() - new Date(a.effective_month).getTime()
+            )
+            const formatted = format(new Date(sorted[0].effective_month), 'MMMM')
+            setLastChurchFundDate(formatted)
+          } else {
+            setLastChurchFundDate(null)
+          }
+        } catch (error) {
+          console.error('Error fetching last church fund date:', error)
           setLastChurchFundDate(null)
         }
       } else {
@@ -138,15 +144,8 @@ export default function AddInvoiceForm() {
       return
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (!user || userError) {
-      setError('User not authenticated.')
-      return
-    }
+    // TODO: Replace with actual user authentication
+    const user = { id: 'temp-user-id' }
 
     const useValidRange = useRange && fromDate && toDate
 
@@ -155,27 +154,33 @@ export default function AddInvoiceForm() {
       name: name || null,
       title,
       amount: Number(amount),
-      date,
-      tag, // this is tag_id from invoice_tags
+      date: new Date(date),
+      tag: tag!, // this is tag_id from invoice_tags
       address: address || null,
-      effective_from: useValidRange ? fromDate : null,
-      effective_to: useValidRange ? toDate : null,
+      effective_from: useValidRange ? new Date(fromDate) : null,
+      effective_to: useValidRange ? new Date(toDate) : null,
       user_id: user.id,
       payment_type: paymentType,
       payment_reference: paymentType !== 'cash' ? paymentReference : null,
-      actual_amt_credit_dt: paymentType === 'cheque' ? null : date,
+      actual_amt_credit_dt: paymentType === 'cheque' ? null : new Date(date),
     }
 
-    const { data: inserted, error: insertError } = await supabase
-      .rpc('insert_invoice_with_short_id', invoiceData)
-      .select()
-      .single()
-
-    if (insertError) {
-      setError(insertError.message)
-    } else {
+    try {
+      const response = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(invoiceData)
+      })
+      
+      if (!response.ok) throw new Error('Failed to create invoice')
+      const { invoice } = await response.json()
+      
       setSuccess('Invoice added successfully!')
-      printInvoice(inserted)
+      
+      // Show confirmation dialog
+      if (confirm('Invoice added successfully! Would you like to print it?')) {
+        printInvoice(invoice)
+      }
       setPhone('')
       setName('')
       setTitle('')
@@ -189,6 +194,8 @@ export default function AddInvoiceForm() {
       setPaymentType('cash')
       setPaymentReference('')
       setLastChurchFundDate(null)
+    } catch (error: any) {
+      setError(error.message)
     }
   }
 

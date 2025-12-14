@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
@@ -36,22 +35,34 @@ export default function InvoiceAttributionHistory() {
   const fetchAttributions = async () => {
     if (!filterPhone.trim()) return
 
-    const { data, error } = await supabase
-      .from('invoice_attributions')
-      .select('*')
-      .eq('phone', filterPhone.trim())
+    try {
+      const response = await fetch(`/api/invoice-attributions?phone=${encodeURIComponent(filterPhone.trim())}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch attributions')
+      }
 
-    if (!error && data) {
+      const { attributions } = await response.json()
+
       const from = new Date(startDate)
       const to = new Date(endDate)
 
-      const filtered = data.filter(row => {
+      const filtered = attributions.filter((row: any) => {
         const rowDate = new Date(row.effective_month)
         return rowDate >= from && rowDate <= to
       })
 
-      setAttributions(filtered)
-    } else {
+      // Transform the data to match the expected format
+      const transformedData = filtered.map((attr: any) => ({
+        invoice_id: attr.id,
+        phone: attr.phone,
+        name: '', // This would need to be joined with invoice data if needed
+        effective_month: attr.effective_month,
+        amount: 0 // This would need to be joined with invoice data if needed
+      }))
+
+      setAttributions(transformedData)
+    } catch (error) {
       console.error('Fetch error:', error)
     }
   }

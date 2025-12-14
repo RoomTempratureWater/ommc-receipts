@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -28,14 +27,26 @@ export default function ManageTags() {
 
   // fetch invoice tags
   const fetchInvoiceTags = async () => {
-    const { data } = await supabase.from('invoice_tags').select('*').order('created_at', { ascending: false })
-    setInvoiceTags(data || [])
+    try {
+      const response = await fetch('/api/tags')
+      if (!response.ok) throw new Error('Failed to fetch tags')
+      const { invoiceTags } = await response.json()
+      setInvoiceTags(invoiceTags || [])
+    } catch (error) {
+      console.error('Error fetching invoice tags:', error)
+    }
   }
 
   // fetch expense tags
   const fetchExpenseTags = async () => {
-    const { data } = await supabase.from('expense_tags').select('*').order('created_at', { ascending: false })
-    setExpenseTags(data || [])
+    try {
+      const response = await fetch('/api/tags')
+      if (!response.ok) throw new Error('Failed to fetch tags')
+      const { expenseTags } = await response.json()
+      setExpenseTags(expenseTags || [])
+    } catch (error) {
+      console.error('Error fetching expense tags:', error)
+    }
   }
 
   useEffect(() => {
@@ -46,28 +57,48 @@ export default function ManageTags() {
   // add new invoice tag
   const handleAddInvoiceTag = async () => {
     if (!newInvoiceTag.trim()) return
-    const { error } = await supabase.from('invoice_tags').insert({
-      tag_name: newInvoiceTag.trim(),
-      sub_tag1: null,
-      sub_tag2: null,
-    })
-    if (!error) {
+    try {
+      const response = await fetch('/api/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'invoice',
+          tag_name: newInvoiceTag.trim(),
+          sub_tag1: null,
+          sub_tag2: null,
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to create invoice tag')
+      
       setNewInvoiceTag('')
       fetchInvoiceTags()
+    } catch (error) {
+      console.error('Error adding invoice tag:', error)
     }
   }
 
   // add new expense tag
   const handleAddExpenseTag = async () => {
     if (!newExpenseTag.trim()) return
-    const { error } = await supabase.from('expense_tags').insert({
-      tag_name: newExpenseTag.trim(),
-      sub_tag1: null,
-      sub_tag2: null,
-    })
-    if (!error) {
+    try {
+      const response = await fetch('/api/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'expense',
+          tag_name: newExpenseTag.trim(),
+          sub_tag1: null,
+          sub_tag2: null,
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to create expense tag')
+      
       setNewExpenseTag('')
       fetchExpenseTags()
+    } catch (error) {
+      console.error('Error adding expense tag:', error)
     }
   }
 
@@ -79,14 +110,24 @@ export default function ManageTags() {
 
   // save invoice tag
   const handleSaveInvoice = async (tagId: string) => {
-    const { error } = await supabase
-      .from('invoice_tags')
-      .update({ tag_name: editingTagName })
-      .eq('tag_id', tagId)
-    if (!error) {
+    try {
+      const response = await fetch('/api/tags', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'invoice',
+          tag_id: tagId,
+          tag_name: editingTagName
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to update invoice tag')
+      
       setEditingInvoiceTagId(null)
       setEditingTagName('')
       fetchInvoiceTags()
+    } catch (error) {
+      console.error('Error updating invoice tag:', error)
     }
   }
 
@@ -98,14 +139,24 @@ export default function ManageTags() {
 
   // save expense tag
   const handleSaveExpense = async (tagId: string) => {
-    const { error } = await supabase
-      .from('expense_tags')
-      .update({ tag_name: editingTagName })
-      .eq('tag_id', tagId)
-    if (!error) {
+    try {
+      const response = await fetch('/api/tags', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'expense',
+          tag_id: tagId,
+          tag_name: editingTagName
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to update expense tag')
+      
       setEditingExpenseTagId(null)
       setEditingTagName('')
       fetchExpenseTags()
+    } catch (error) {
+      console.error('Error updating expense tag:', error)
     }
   }
 

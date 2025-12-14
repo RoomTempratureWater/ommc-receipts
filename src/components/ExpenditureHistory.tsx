@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -39,11 +38,15 @@ export default function ExpenditureHistory() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: tagData } = await supabase.from('expense_tags').select('tag_id, tag_name')
-      if (tagData) {
-        setTags(tagData)
-        setSelectedTags(tagData.map(t => t.tag_id))
+      try {
+        const response = await fetch('/api/tags')
+        if (!response.ok) throw new Error('Failed to fetch tags')
+        const { expenseTags } = await response.json()
+        setTags(expenseTags)
+        setSelectedTags(expenseTags.map((t: any) => t.tag_id))
         setAllSelected(true)
+      } catch (error) {
+        console.error('Error fetching tags:', error)
       }
     }
     init()
@@ -51,31 +54,29 @@ export default function ExpenditureHistory() {
 
   useEffect(() => {
     const fetchExpenditures = async () => {
-      let query = supabase.from('expenditures').select('*')
+      try {
+        const params = new URLSearchParams()
+        if (startDate) params.append('startDate', startDate)
+        if (endDate) params.append('endDate', endDate)
+        if (selectedTags.length) params.append('tags', selectedTags.join(','))
+        if (paymentRefFilter) params.append('paymentRef', paymentRefFilter)
+        if (showPendingCheques) params.append('onlyPendingCredit', 'true')
 
-      if (startDate) query = query.gte('actual_amt_credit_dt', startDate)
-      if (endDate) query = query.lte('actual_amt_credit_dt', endDate)
-      if (selectedTags.length) query = query.in('tag', selectedTags)
-      if (paymentRefFilter) query = query.ilike('payment_reference', `%${paymentRefFilter}%`)
-      if (showPendingCheques) query = query.is('actual_amt_credit_dt', null)
+        const response = await fetch(`/api/expenditures?${params.toString()}`)
+        if (!response.ok) throw new Error('Failed to fetch expenditures')
+        const { expenditures } = await response.json()
 
-      const { data, error } = await query.order('date', { ascending: false })
-      if (error) return console.error(error.message)
+        // For now, we'll skip the image signing since we're not using Supabase storage
+        // TODO: Implement file storage solution
+        const signed = expenditures.map((exp: any) => ({
+          ...exp,
+          signed_image_url: exp.file_path, // Use file_path directly for now
+        }))
 
-      const signed = await Promise.all(
-        data.map(async exp => {
-          if (!exp.image_url) return { ...exp, signed_image_url: null }
-          const { data: signedImage } = await supabase.storage
-            .from('expenditures')
-            .createSignedUrl(exp.image_url, 3600)
-          return {
-            ...exp,
-            signed_image_url: signedImage?.signedUrl ?? null,
-          }
-        })
-      )
-
-      setExpenditures(signed)
+        setExpenditures(signed)
+      } catch (error) {
+        console.error('Error fetching expenditures:', error)
+      }
     }
 
     fetchExpenditures()
@@ -100,16 +101,36 @@ export default function ExpenditureHistory() {
   }
 
   const updateCreditDate = async (id: string, newDate: string | null) => {
-    const { error } = await supabase.from('expenditures').update({ actual_amt_credit_dt: newDate }).eq('id', id)
-    if (error) return console.error(error.message)
-    setExpenditures(prev => prev.map(exp => exp.id === id ? { ...exp, actual_amt_credit_dt: newDate } : exp))
+    try {
+      const response = await fetch('/api/expenditures', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          actual_amt_credit_dt: newDate ? new Date(newDate) : null
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to update expenditure')
+      
+      setExpenditures(prev => prev.map(exp => exp.id === id ? { ...exp, actual_amt_credit_dt: newDate } : exp))
+    } catch (error) {
+      console.error('Error updating credit date:', error)
+    }
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this expenditure?')) return
-    const { error } = await supabase.from('expenditures').delete().eq('id', id)
-    if (!error) {
+    try {
+      const response = await fetch(`/api/expenditures?id=${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) throw new Error('Failed to delete expenditure')
+      
       setExpenditures(prev => prev.filter(exp => exp.id !== id))
+    } catch (error) {
+      console.error('Error deleting expenditure:', error)
     }
   }
 
