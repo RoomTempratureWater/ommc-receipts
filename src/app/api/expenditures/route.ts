@@ -32,8 +32,9 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = {}
     
-    if (startDate) where.actual_amt_credit_dt = { gte: new Date(startDate) }
-    if (endDate) where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, lte: new Date(endDate) }
+    // Filter by date field (the expenditure date), not actual_amt_credit_dt
+    if (startDate) where.date = { gte: new Date(startDate) }
+    if (endDate) where.date = { ...where.date, lte: new Date(endDate) }
     if (tags) {
       const tagArray = tags.split(',').filter(t => t.trim())
       if (tagArray.length) where.tag = { in: tagArray }

@@ -69,9 +69,15 @@ export default function BalanceSheet() {
         const invoiceParams = new URLSearchParams()
         invoiceParams.append('startDate', startDate)
         invoiceParams.append('endDate', endDate)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/7a16c0d1-bc8b-493e-9ce5-d920499db01c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BalanceSheet.tsx:72',message:'Sending invoice request with date params',data:{startDate,endDate,url:`/api/invoices?${invoiceParams.toString()}`},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         const invoiceResponse = await fetch(`/api/invoices?${invoiceParams.toString()}`)
         if (!invoiceResponse.ok) throw new Error('Failed to fetch invoices')
         const { invoices } = await invoiceResponse.json()
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/7a16c0d1-bc8b-493e-9ce5-d920499db01c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BalanceSheet.tsx:75',message:'Received invoices response',data:{invoiceCount:invoices?.length||0,firstInvoiceDate:invoices?.[0]?.created_at,lastInvoiceDate:invoices?.[invoices.length-1]?.created_at},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
         
         // Fetch expense data
         const expenseParams = new URLSearchParams()

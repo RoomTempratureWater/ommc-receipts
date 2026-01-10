@@ -180,6 +180,9 @@ export default function AddInvoiceForm() {
     }
 
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/7a16c0d1-bc8b-493e-9ce5-d920499db01c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AddInvoiceForm.tsx:183',message:'Creating invoice',data:{invoiceData:JSON.stringify(invoiceData)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
       const response = await fetch('/api/invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,6 +191,9 @@ export default function AddInvoiceForm() {
       
       if (!response.ok) throw new Error('Failed to create invoice')
       const { invoice } = await response.json()
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/7a16c0d1-bc8b-493e-9ce5-d920499db01c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AddInvoiceForm.tsx:190',message:'Invoice created successfully',data:{invoiceId:invoice?.id,createdAt:invoice?.created_at,date:invoice?.date},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
       
       setSuccess('Invoice added successfully!')
       

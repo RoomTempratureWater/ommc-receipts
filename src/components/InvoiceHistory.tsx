@@ -54,7 +54,12 @@ export default function InvoiceHistory() {
   const [paymentRef, setPaymentRef] = useState('')
   const [paymentType, setPaymentType] = useState<string | undefined>()
 
-  const [maxDate, setMaxDate] = useState(getTodayDate())
+  // Default maxDate to a future date to ensure new invoices are visible
+  const [maxDate, setMaxDate] = useState(() => {
+    const futureDate = new Date()
+    futureDate.setFullYear(futureDate.getFullYear() + 1)
+    return futureDate.toISOString().split('T')[0]
+  })
   const [fromDate, setFromDate] = useState('')
   const [tags, setTags] = useState<Tag[]>([])
 
@@ -99,9 +104,15 @@ export default function InvoiceHistory() {
       params.append('page', pageNum.toString())
       params.append('pageSize', pageSize.toString())
 
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/7a16c0d1-bc8b-493e-9ce5-d920499db01c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InvoiceHistory.tsx:102',message:'Fetching invoices with filters',data:{params:params.toString(),maxDate,fromDate,pageNum},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'G'})}).catch(()=>{});
+      // #endregion
       const response = await fetch(`/api/invoices?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch invoices')
       const { invoices } = await response.json()
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/7a16c0d1-bc8b-493e-9ce5-d920499db01c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InvoiceHistory.tsx:105',message:'Received invoices',data:{invoiceCount:invoices?.length||0,firstInvoiceId:invoices?.[0]?.id,firstInvoiceDate:invoices?.[0]?.created_at,lastInvoiceDate:invoices?.[invoices.length-1]?.created_at},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'G'})}).catch(()=>{});
+      // #endregion
 
       if (pageNum === 1) setInvoices(invoices)
       else setInvoices(prev => [...prev, ...invoices])
