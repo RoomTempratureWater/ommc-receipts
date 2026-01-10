@@ -25,6 +25,8 @@ function getISTTimestamp() {
 interface Tag {
   tag_id: string
   tag_name: string
+  sub_tag1: string | null
+  sub_tag2: string | null
 }
 
 export default function AddExpenditureForm() {
@@ -33,6 +35,7 @@ export default function AddExpenditureForm() {
   const [paymentType, setPaymentType] = useState('')
   const [paymentRef, setPaymentRef] = useState('')
   const [tag, setTag] = useState<string | undefined>()
+  const [subtag, setSubtag] = useState<string | undefined>()
   const [tags, setTags] = useState<Tag[]>([])
   const [date, setDate] = useState(getTodayDate())
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -53,11 +56,21 @@ export default function AddExpenditureForm() {
     fetchTags()
   }, [])
 
+  // Reset subtag when tag changes
+  useEffect(() => {
+    setSubtag(undefined)
+  }, [tag])
+
   const validate = () => {
     if (!title || !amount || !paymentType || !date) return 'All fields are required.'
     if (isNaN(Number(amount))) return 'Amount must be a number.'
     if (paymentType !== 'cash' && !paymentRef) return 'Payment reference is required.'
     if (!tag) return 'Please select a tag.'
+    const selectedTag = tags.find(t => t.tag_id === tag)
+    const availableSubtags = (selectedTag ? [selectedTag.sub_tag1, selectedTag.sub_tag2] : []).filter(
+      (s): s is string => !!s && s.trim().length > 0
+    )
+    if (availableSubtags.length > 0 && !subtag) return 'Please select a subtag for the chosen tag.'
     return null
   }
 
@@ -101,12 +114,18 @@ export default function AddExpenditureForm() {
 
     const actual_amt_credit_dt = paymentType === 'cheque' ? null : date
 
+    const selectedTag = tags.find(t => t.tag_id === tag)
+    const availableSubtags = (selectedTag ? [selectedTag.sub_tag1, selectedTag.sub_tag2] : []).filter(
+      (s): s is string => !!s && s.trim().length > 0
+    )
+
     const expenditureData = {
       title,
       amount: Number(amount),
       payment_type: paymentType,
       payment_reference: paymentType !== 'cash' ? paymentRef : null,
       tag: tag!,
+      subtag: availableSubtags.length > 0 ? subtag || null : null,
       date: new Date(date),
       image_url: filePath,
       actual_amt_credit_dt: actual_amt_credit_dt ? new Date(actual_amt_credit_dt) : null,
@@ -127,6 +146,7 @@ export default function AddExpenditureForm() {
       setPaymentType('')
       setPaymentRef('')
       setTag(undefined)
+      setSubtag(undefined)
       setDate(getTodayDate())
       setImageFile(null)
     } catch (error: any) {
@@ -181,7 +201,10 @@ export default function AddExpenditureForm() {
 
       <div>
         <Label>Tag</Label>
-        <Select value={tag} onValueChange={setTag}>
+        <Select value={tag} onValueChange={(value) => {
+          setTag(value)
+          setSubtag(undefined) // Reset subtag when tag changes
+        }}>
           <SelectTrigger>
             <SelectValue placeholder="Select a tag" />
           </SelectTrigger>
@@ -194,6 +217,31 @@ export default function AddExpenditureForm() {
           </SelectContent>
         </Select>
       </div>
+
+      {tag && (() => {
+        const selectedTag = tags.find(t => t.tag_id === tag)
+        const availableSubtags = (selectedTag ? [selectedTag.sub_tag1, selectedTag.sub_tag2] : []).filter(
+          (s): s is string => !!s && s.trim().length > 0
+        )
+        if (!availableSubtags.length) return null
+        return (
+          <div>
+            <Label>Subtag *</Label>
+            <Select value={subtag} onValueChange={setSubtag}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a subtag" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableSubtags.map(sub => (
+                  <SelectItem key={sub} value={sub}>
+                    {sub}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )
+      })()}
 
       <div>
         <Label>Date</Label>

@@ -55,18 +55,18 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { type, tag_id, tag_name } = body
+    const { type, tag_id, tag_name, sub_tag1, sub_tag2 } = body
 
     if (type === 'invoice') {
       const tag = await db.invoice_tags.update({
         where: { tag_id },
-        data: { tag_name }
+        data: { tag_name, sub_tag1, sub_tag2 }
       })
       return NextResponse.json({ tag }, { status: 200 })
     } else if (type === 'expense') {
       const tag = await db.expense_tags.update({
         where: { tag_id },
-        data: { tag_name }
+        data: { tag_name, sub_tag1, sub_tag2 }
       })
       return NextResponse.json({ tag }, { status: 200 })
     } else {

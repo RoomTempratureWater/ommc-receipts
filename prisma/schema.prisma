@@ -356,6 +356,7 @@ model expenditures {
   amount               Decimal   @db.Decimal
   payment_type         String
   payment_reference    String?
+  subtag               String?
   tag                  String?   @db.Uuid
   created_at           DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
   user_id              String?   @db.Uuid
@@ -397,6 +398,7 @@ model invoices {
   name                 String?
   title                String
   amount               Decimal   @db.Decimal
+  subtag               String?
   tag                  String?   @db.Uuid
   created_at           DateTime? @default(dbgenerated("timezone('Asia/Kolkata'::text, now())")) @db.Timestamptz(6)
   address              String?
