@@ -356,6 +356,7 @@ model expenditures {
   amount               Decimal   @db.Decimal
   payment_type         String
   payment_reference    String?
+  subtag               String?
   tag                  String?   @db.Uuid
   created_at           DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
   user_id              String?   @db.Uuid
@@ -397,6 +398,7 @@ model invoices {
   name                 String?
   title                String
   amount               Decimal   @db.Decimal
+  subtag               String?
   tag                  String?   @db.Uuid
   created_at           DateTime? @default(dbgenerated("timezone('Asia/Kolkata'::text, now())")) @db.Timestamptz(6)
   address              String?
@@ -405,7 +407,7 @@ model invoices {
   payment_type         String?
   payment_reference    String?
   date                 DateTime? @db.Date
-  id_short             String?   @unique(map: "unique_short_id")
+  id_short             Int       @unique(map: "unique_short_id") @default(autoincrement())
   actual_amt_credit_dt DateTime? @db.Date
   tags                 tags?     @relation(fields: [tag], references: [tag_id], onDelete: NoAction, onUpdate: NoAction)
   users                users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)

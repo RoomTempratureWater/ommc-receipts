@@ -84,19 +84,26 @@ export async function POST(request: NextRequest) {
     // }
 
     const body = await request.json()
+    // Exclude id_short from the data since it's auto-increment
+    const { id_short, ...invoiceData } = body
     const invoice = await db.invoices.create({
       data: {
-        ...body,
+        ...invoiceData,
         user_id: null // Set to null instead of invalid UUID string
       },
       include: { tags: true }
     })
 
     return NextResponse.json({ invoice }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating invoice:', error)
+    // Return more detailed error for debugging
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        message: error?.message || 'Unknown error',
+        code: error?.code
+      },
       { status: 500 }
     )
   }

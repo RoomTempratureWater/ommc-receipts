@@ -32,6 +32,7 @@ type Invoice = {
   payment_type?: string;
   created_at: string;
   actual_amt_credit_dt: string | null;
+  id_short: number;
   tags?: Tag;
 };
 
