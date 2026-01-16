@@ -22,6 +22,8 @@ function getTodayDate() {
 interface Tag {
   tag_id: string
   tag_name: string
+  sub_tag1: string | null
+  sub_tag2: string | null
 }
 
 interface Member {
@@ -38,6 +40,7 @@ export default function AddInvoiceForm() {
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(getTodayDate())
   const [tag, setTag] = useState<string | undefined>()
+  const [subtag, setSubtag] = useState<string | undefined>()
   const [tags, setTags] = useState<Tag[]>([])
   const [address, setAddress] = useState('')
   const [useRange, setUseRange] = useState(false)
@@ -52,6 +55,10 @@ export default function AddInvoiceForm() {
   const [lastChurchFundDate, setLastChurchFundDate] = useState<string | null>(null)
 
   const selectedTagName = tags.find(t => t.tag_id === tag)?.tag_name
+  const selectedTag = tags.find(t => t.tag_id === tag)
+  const availableSubtags = (selectedTag ? [selectedTag.sub_tag1, selectedTag.sub_tag2] : []).filter(
+    (s): s is string => !!s && s.trim().length > 0
+  )
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -66,6 +73,11 @@ export default function AddInvoiceForm() {
     }
     fetchTags()
   }, [])
+
+  // Reset subtag when tag changes
+  useEffect(() => {
+    setSubtag(undefined)
+  }, [tag])
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -127,6 +139,7 @@ export default function AddInvoiceForm() {
     if (trimmedPhone && !/^\d{10}$/.test(trimmedPhone)) return 'Phone number must be exactly 10 digits if provided.'
     if (!title || !amount || !date) return 'Title, Amount, and Date are required.'
     if (!tag) return 'Please select a tag.'
+    if (availableSubtags.length > 0 && !subtag) return 'Please select a subtag for the chosen tag.'
     if (isNaN(Number(amount))) return 'Amount must be a number.'
     if (paymentType !== 'cash' && !paymentReference) return 'Payment reference is required for non-cash payments.'
     if (selectedTagName === 'Church Fund' && useRange && (!fromDate || !toDate)) {
@@ -156,6 +169,7 @@ export default function AddInvoiceForm() {
       amount: Number(amount),
       date: new Date(date),
       tag: tag!, // this is tag_id from invoice_tags
+      subtag: subtag || null,
       address: address || null,
       effective_from: useValidRange ? new Date(fromDate) : null,
       effective_to: useValidRange ? new Date(toDate) : null,
@@ -190,6 +204,7 @@ export default function AddInvoiceForm() {
       setToDate('')
       setAddress('')
       setTag(undefined)
+      setSubtag(undefined)
       setUseRange(false)
       setPaymentType('cash')
       setPaymentReference('')
@@ -256,7 +271,10 @@ export default function AddInvoiceForm() {
 
       <div>
         <Label>Tag</Label>
-        <Select value={tag} onValueChange={setTag}>
+        <Select value={tag} onValueChange={(value) => {
+          setTag(value)
+          setSubtag(undefined) // Reset subtag when tag changes
+        }}>
           <SelectTrigger><SelectValue placeholder="Select a tag" /></SelectTrigger>
           <SelectContent>
             {tags.map(t => (
@@ -265,6 +283,20 @@ export default function AddInvoiceForm() {
           </SelectContent>
         </Select>
       </div>
+
+      {tag && availableSubtags.length > 0 && (
+        <div>
+          <Label>Subtag *</Label>
+          <Select value={subtag} onValueChange={setSubtag}>
+            <SelectTrigger><SelectValue placeholder="Select a subtag" /></SelectTrigger>
+            <SelectContent>
+              {availableSubtags.map(sub => (
+                <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div>
         <Label>Payment Type</Label>

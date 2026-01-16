@@ -11,10 +11,13 @@ import { Card } from '@/components/ui/card'
 interface Tag {
   tag_id: string
   tag_name: string
+  sub_tag1: string | null
+  sub_tag2: string | null
 }
 
 interface Record {
   tag: string
+  subtag?: string | null
   payment_type: string
   amount: number
 }
@@ -31,6 +34,8 @@ export default function BalanceSheet() {
 
   const [selectedInvoiceTags, setSelectedInvoiceTags] = useState<string[]>([])
   const [selectedExpenseTags, setSelectedExpenseTags] = useState<string[]>([])
+  const [expandedInvoiceTags, setExpandedInvoiceTags] = useState<Set<string>>(new Set())
+  const [expandedExpenseTags, setExpandedExpenseTags] = useState<Set<string>>(new Set())
 
   const [actualCash, setActualCash] = useState<number>(0)
   const [actualBank, setActualBank] = useState<number>(0)
@@ -79,11 +84,13 @@ export default function BalanceSheet() {
         // Extract only the fields we need
         const invoiceData = invoices.map((inv: any) => ({
           tag: inv.tag,
+          subtag: inv.subtag,
           payment_type: inv.payment_type,
           amount: inv.amount
         }))
         const expenseData = expenditures.map((exp: any) => ({
           tag: exp.tag,
+          subtag: exp.subtag,
           payment_type: exp.payment_type,
           amount: exp.amount
         }))
@@ -110,16 +117,32 @@ export default function BalanceSheet() {
   }, [startDate, endDate])
 
   const groupByTagAndType = (data: Record[], selectedTags: string[]) => {
-    const totals: Record<string, { cash: number; bank: number }> = {}
+    const totals: Record<
+      string,
+      {
+        cash: number
+        bank: number
+        subtags: Record<string, { cash: number; bank: number }>
+      }
+    > = {}
 
     for (const entry of data) {
       if (!selectedTags.includes(entry.tag)) continue
-      if (!totals[entry.tag]) totals[entry.tag] = { cash: 0, bank: 0 }
+      if (!totals[entry.tag]) {
+        totals[entry.tag] = { cash: 0, bank: 0, subtags: {} }
+      }
 
       const isCash = entry.payment_type === 'cash'
       const amount = Number(entry.amount) || 0 // Ensure amount is a number
       if (isCash) totals[entry.tag].cash += amount
       else totals[entry.tag].bank += amount
+
+      const subtagKey = entry.subtag || 'Unspecified'
+      if (!totals[entry.tag].subtags[subtagKey]) {
+        totals[entry.tag].subtags[subtagKey] = { cash: 0, bank: 0 }
+      }
+      if (isCash) totals[entry.tag].subtags[subtagKey].cash += amount
+      else totals[entry.tag].subtags[subtagKey].bank += amount
     }
 
     return totals
@@ -139,17 +162,31 @@ export default function BalanceSheet() {
   const downloadCSV = () => {
     let csv = `Balance Sheet Report (${startDate} to ${endDate})\n\n`
 
-    csv += `Invoices\nTag,Cash,Bank\n`
-    Object.entries(invoiceTotals).forEach(([tagId, { cash, bank }]) => {
-      const tagName = tags.find(t => t.tag_id === tagId)?.tag_name || tagId
-      csv += `${tagName},${cash},${bank}\n`
+    csv += `Invoices\nTag,Subtag,Cash,Bank\n`
+    Object.entries(invoiceTotals).forEach(([tagId, { cash, bank, subtags }]) => {
+      const tagName = invoiceTagsList.find(t => t.tag_id === tagId)?.tag_name || tagId
+      const subEntries = Object.entries(subtags)
+      if (subEntries.length === 0) {
+        csv += `${tagName},,${cash},${bank}\n`
+      } else {
+        subEntries.forEach(([sub, amounts]) => {
+          csv += `${tagName},${sub},${amounts.cash},${amounts.bank}\n`
+        })
+      }
     })
     csv += `Total,${totalInvoiceCash},${totalInvoiceBank}\n\n`
 
-    csv += `Expenditures\nTag,Cash,Bank\n`
-    Object.entries(expenseTotals).forEach(([tagId, { cash, bank }]) => {
-      const tagName = tags.find(t => t.tag_id === tagId)?.tag_name || tagId
-      csv += `${tagName},${cash},${bank}\n`
+    csv += `Expenditures\nTag,Subtag,Cash,Bank\n`
+    Object.entries(expenseTotals).forEach(([tagId, { cash, bank, subtags }]) => {
+      const tagName = expenseTagsList.find(t => t.tag_id === tagId)?.tag_name || tagId
+      const subEntries = Object.entries(subtags)
+      if (subEntries.length === 0) {
+        csv += `${tagName},,${cash},${bank}\n`
+      } else {
+        subEntries.forEach(([sub, amounts]) => {
+          csv += `${tagName},${sub},${amounts.cash},${amounts.bank}\n`
+        })
+      }
     })
     csv += `Total,${totalExpenseCash},${totalExpenseBank}\n\n`
 
@@ -217,20 +254,47 @@ export default function BalanceSheet() {
           <table className="w-full mt-2 text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-1">Tag</th>
+                <th className="text-left py-1">Tag / Subtags</th>
                 <th className="text-right py-1">Cash</th>
                 <th className="text-right py-1">Bank</th>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(invoiceTotals).map(([tagId, { cash, bank }]) => {
+              {Object.entries(invoiceTotals).map(([tagId, { cash, bank, subtags }]) => {
                 const tagName = invoiceTagsList.find(t => t.tag_id === tagId)?.tag_name || tagId
+                const isExpanded = expandedInvoiceTags.has(tagId)
                 return (
-                  <tr key={tagId}>
-                    <td>{tagName}</td>
-                    <td className="text-right">₹{cash.toLocaleString()}</td>
-                    <td className="text-right">₹{bank.toLocaleString()}</td>
-                  </tr>
+                  <>
+                    <tr key={tagId}>
+                      <td className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="w-5 h-5 flex items-center justify-center border rounded text-xs"
+                          onClick={() => {
+                            setExpandedInvoiceTags(prev => {
+                              const next = new Set(prev)
+                              if (next.has(tagId)) next.delete(tagId)
+                              else next.add(tagId)
+                              return next
+                            })
+                          }}
+                        >
+                          {isExpanded ? '-' : '+'}
+                        </button>
+                        <span>{tagName}</span>
+                      </td>
+                      <td className="text-right">₹{cash.toLocaleString()}</td>
+                      <td className="text-right">₹{bank.toLocaleString()}</td>
+                    </tr>
+                    {isExpanded &&
+                      Object.entries(subtags).map(([sub, amounts]) => (
+                        <tr key={`${tagId}-${sub}`} className="text-xs text-gray-600">
+                          <td className="pl-8">{sub}</td>
+                          <td className="text-right">₹{amounts.cash.toLocaleString()}</td>
+                          <td className="text-right">₹{amounts.bank.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                  </>
                 )
               })}
               <tr className="border-t font-semibold">
@@ -273,20 +337,47 @@ export default function BalanceSheet() {
           <table className="w-full mt-2 text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-1">Tag</th>
+                <th className="text-left py-1">Tag / Subtags</th>
                 <th className="text-right py-1">Cash</th>
                 <th className="text-right py-1">Bank</th>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(expenseTotals).map(([tagId, { cash, bank }]) => {
+              {Object.entries(expenseTotals).map(([tagId, { cash, bank, subtags }]) => {
                 const tagName = expenseTagsList.find(t => t.tag_id === tagId)?.tag_name || tagId
+                const isExpanded = expandedExpenseTags.has(tagId)
                 return (
-                  <tr key={tagId}>
-                    <td>{tagName}</td>
-                    <td className="text-right">₹{cash.toLocaleString()}</td>
-                    <td className="text-right">₹{bank.toLocaleString()}</td>
-                  </tr>
+                  <>
+                    <tr key={tagId}>
+                      <td className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="w-5 h-5 flex items-center justify-center border rounded text-xs"
+                          onClick={() => {
+                            setExpandedExpenseTags(prev => {
+                              const next = new Set(prev)
+                              if (next.has(tagId)) next.delete(tagId)
+                              else next.add(tagId)
+                              return next
+                            })
+                          }}
+                        >
+                          {isExpanded ? '-' : '+'}
+                        </button>
+                        <span>{tagName}</span>
+                      </td>
+                      <td className="text-right">₹{cash.toLocaleString()}</td>
+                      <td className="text-right">₹{bank.toLocaleString()}</td>
+                    </tr>
+                    {isExpanded &&
+                      Object.entries(subtags).map(([sub, amounts]) => (
+                        <tr key={`${tagId}-${sub}`} className="text-xs text-gray-600">
+                          <td className="pl-8">{sub}</td>
+                          <td className="text-right">₹{amounts.cash.toLocaleString()}</td>
+                          <td className="text-right">₹{amounts.bank.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                  </>
                 )
               })}
               <tr className="border-t font-semibold">

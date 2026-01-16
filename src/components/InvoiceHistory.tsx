@@ -32,6 +32,7 @@ type Invoice = {
   payment_type?: string;
   created_at: string;
   actual_amt_credit_dt: string | null;
+  id_short: number;
   tags?: Tag;
 };
 
@@ -54,7 +55,12 @@ export default function InvoiceHistory() {
   const [paymentRef, setPaymentRef] = useState('')
   const [paymentType, setPaymentType] = useState<string | undefined>()
 
-  const [maxDate, setMaxDate] = useState(getTodayDate())
+  // Default maxDate to a future date to ensure new invoices are visible
+  const [maxDate, setMaxDate] = useState(() => {
+    const futureDate = new Date()
+    futureDate.setFullYear(futureDate.getFullYear() + 1)
+    return futureDate.toISOString().split('T')[0]
+  })
   const [fromDate, setFromDate] = useState('')
   const [tags, setTags] = useState<Tag[]>([])
 
