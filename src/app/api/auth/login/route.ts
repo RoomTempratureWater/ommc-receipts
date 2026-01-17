@@ -49,13 +49,17 @@ export async function POST(request: NextRequest) {
       { user: { id: user.id, email: user.email } },
       { status: 200 }
     )
+    // If you're on http://192.168.x.x, this must be false.
+    const isSecureContext = process.env.NODE_ENV === 'production' && 
+                            request.nextUrl.protocol === 'https:';
 
     response.cookies.set('auth-token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      // Change this: Only set secure if it's actually HTTPS
+      secure: isSecureContext, 
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: '/' // Ensure cookie is available for all paths
+      path: '/'
     })
 
     return response
