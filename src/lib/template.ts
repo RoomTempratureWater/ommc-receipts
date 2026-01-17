@@ -68,7 +68,10 @@ function getPublicImage(imagePath: string): string{
   return `/${normalizedPath}`;
 };
 
+
+
 export function ChurchReceipt(invoice: any) {
+  const tailwindScript = '/scripts/tailwind-4.js';
   const imageUrl = getPublicImage('images/methodist.png');
   var ref_id = "";
   if(invoice.payment_reference != null){
@@ -84,7 +87,7 @@ export function ChurchReceipt(invoice: any) {
 <head>
 <title>${invoice.id_short}</title>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="${tailwindScript}"></script>
 <body>    
 
 <div class="grid grid-rows-2 gap-1" style="page-break-inside: avoid;">
