@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 type Attribution = {
-  invoice_id: string
+  id: string
+  id_short: number
   phone: string
   name: string
-  effective_month: string
-  amount: number
+  formatted_date: string // "11/01/2026"
+  month_display: string  // "January 2026"
+  amount: string | number
 }
 
 type MonthlyTotal = {
@@ -22,9 +24,11 @@ function getTodayDate() {
   return new Date().toISOString().split('T')[0]
 }
 
-export default function InvoiceAttributionHistory() {
+export default function ChurchFundHistory() {
   const [attributions, setAttributions] = useState<Attribution[]>([])
   const [filterPhone, setFilterPhone] = useState('')
+  const [loading, setLoading] = useState(false)
+  
   const [startDate, setStartDate] = useState(() => {
     const d = new Date()
     d.setMonth(d.getMonth() - 11)
@@ -33,37 +37,33 @@ export default function InvoiceAttributionHistory() {
   const [endDate, setEndDate] = useState(getTodayDate())
 
   const fetchAttributions = async () => {
-    if (!filterPhone.trim()) return
+    if (filterPhone.trim().length !== 10) {
+      setAttributions([])
+      return
+    }
 
+    setLoading(true)
     try {
       const response = await fetch(`/api/invoice-attributions?phone=${encodeURIComponent(filterPhone.trim())}`)
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch attributions')
-      }
+      if (!response.ok) throw new Error('Failed to fetch')
 
-      const { attributions } = await response.json()
+      const { attributions: data } = await response.json()
 
       const from = new Date(startDate)
       const to = new Date(endDate)
 
-      const filtered = attributions.filter((row: any) => {
-        const rowDate = new Date(row.effective_month)
+      // FIX: Parse the DD/MM/YYYY string into a Date object for filtering
+      const filtered = data.filter((row: Attribution) => {
+        const [day, month, year] = row.formatted_date.split('/').map(Number)
+        const rowDate = new Date(year, month - 1, day)
         return rowDate >= from && rowDate <= to
       })
 
-      // Transform the data to match the expected format
-      const transformedData = filtered.map((attr: any) => ({
-        invoice_id: attr.id,
-        phone: attr.phone,
-        name: '', // This would need to be joined with invoice data if needed
-        effective_month: attr.effective_month,
-        amount: 0 // This would need to be joined with invoice data if needed
-      }))
-
-      setAttributions(transformedData)
+      setAttributions(filtered)
     } catch (error) {
       console.error('Fetch error:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -71,17 +71,19 @@ export default function InvoiceAttributionHistory() {
     const map = new Map<string, number>()
   
     for (const attr of attributions) {
-      const date = new Date(attr.effective_month)
-      const monthStr = date.toLocaleString('default', { month: 'long', year: 'numeric' }) // e.g. "May 2024"
-      map.set(monthStr, (map.get(monthStr) || 0) + attr.amount)
+      const monthStr = attr.month_display.trim().replace(/\s+/g, ' ') // Clean up extra spaces
+      map.set(monthStr, (map.get(monthStr) || 0) + Number(attr.amount))
     }
   
     return Array.from(map.entries())
       .map(([month, total]) => ({ month, total }))
-      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
+      .sort((a, b) => {
+        // Sort by parsing the "Month Year" string
+        return new Date(a.month).getTime() - new Date(b.month).getTime()
+      })
   }
 
-  const totalAmount = attributions.reduce((sum, a) => sum + a.amount, 0)
+  const totalAmount = attributions.reduce((sum, a) => sum + Number(a.amount), 0)
   const monthlyTotals = getMonthlyTotals()
 
   useEffect(() => {
@@ -90,82 +92,84 @@ export default function InvoiceAttributionHistory() {
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
       <div className="flex flex-wrap items-end gap-4 justify-between">
-        <h2 className="text-xl font-semibold">Church Fund History</h2>
-        <Input
-          placeholder="Enter phone number"
-          value={filterPhone}
-          onChange={e => setFilterPhone(e.target.value)}
-          className="w-64"
-        />
-        <Input
-          type="date"
-          value={startDate}
-          max={getTodayDate()}
-          onChange={e => setStartDate(e.target.value)}
-        />
-        <Input
-          type="date"
-          value={endDate}
-          max={getTodayDate()}
-          onChange={e => setEndDate(e.target.value)}
-        />
+        <h2 className="text-xl font-semibold text-emerald-800">Church Fund History</h2>
+        
+        <div className="flex flex-wrap gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Phone Number</label>
+            <Input
+              placeholder="10 digit phone"
+              value={filterPhone}
+              maxLength={10}
+              onChange={e => setFilterPhone(e.target.value.replace(/\D/g, ''))}
+              className="w-48"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">From</label>
+            <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">To</label>
+            <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+          </div>
+        </div>
       </div>
 
-      {/* Summary + Graph */}
-      {filterPhone.trim() && (
+      {filterPhone.length === 10 ? (
         <>
-          <div className="flex gap-6">
-            <Card className="flex-1 max-w-xs">
-              <CardHeader>
-                <CardTitle>Total Funds</CardTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-emerald-50 border-emerald-200">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-emerald-600">Total Contributions</CardTitle>
               </CardHeader>
-              <CardContent className="text-3xl font-bold">₹{totalAmount}</CardContent>
+              <CardContent>
+                <div className="text-3xl font-bold text-emerald-700">₹{totalAmount.toLocaleString('en-IN')}</div>
+              </CardContent>
             </Card>
 
-            <Card className="flex-1">
-              <CardHeader>
-                <CardTitle>Monthly Church Fund Graph</CardTitle>
+            <Card className="md:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Growth Trend</CardTitle>
               </CardHeader>
-              <CardContent className="h-48">
+              <CardContent className="h-40">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={monthlyTotals}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
+                    <XAxis dataKey="month" fontSize={10} />
+                    <YAxis fontSize={10} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="total" stroke="#16a34a" strokeWidth={2} />
+                    <Line type="monotone" dataKey="total" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
 
-          {/* Attribution Table */}
-          <div className="overflow-auto max-h-[600px] border rounded-md">
-            <table className="min-w-full border-collapse table-auto">
-              <thead className="sticky top-0 bg-white dark:bg-black">
+          <div className="border rounded-xl overflow-hidden shadow-sm bg-white">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="border px-3 py-2 text-left">Invoice short ID</th>
-                  <th className="border px-3 py-2 text-left">Phone</th>
-                  <th className="border px-3 py-2 text-left">Name</th>
-                  <th className="border px-3 py-2 text-left">Month</th>
-                  <th className="border px-3 py-2 text-right">Amount (₹)</th>
+                  <th className="px-4 py-3 text-left">ID</th>
+                  <th className="px-4 py-3 text-left">Name</th>
+                  <th className="px-4 py-3 text-left">Attributed Month</th>
+                  <th className="px-4 py-3 text-right">Amount</th>
+                  <th className="px-4 py-3 text-left">Date</th>
                 </tr>
               </thead>
-              <tbody>
-                {attributions.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center p-4">No records found.</td>
-                  </tr>
+              <tbody className="divide-y">
+                {loading ? (
+                  <tr><td colSpan={5} className="text-center py-10">Loading...</td></tr>
+                ) : attributions.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-10 text-gray-500">No records found for this date range.</td></tr>
                 ) : (
-                  attributions.map(attr => (
-                    <tr key={`${attr.invoice_id}-${attr.effective_month}`} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="border px-3 py-2">{attr.short_id}</td>
-                      <td className="border px-3 py-2">{attr.phone}</td>
-                      <td className="border px-3 py-2">{attr.name}</td>
-                      <td className="border px-3 py-2">{attr.effective_month}</td>
-                      <td className="border px-3 py-2 text-right">{attr.amount}</td>
+                  attributions.map((attr, idx) => (
+                    <tr key={idx} className="hover:bg-emerald-50/50 transition-colors">
+                      <td className="px-4 py-3 text-gray-400">#{attr.id_short}</td>
+                      <td className="px-4 py-3 font-medium">{attr.name}</td>
+                      <td className="px-4 py-3 text-emerald-700 font-semibold">{attr.month_display}</td>
+                      <td className="px-4 py-3 text-right font-bold text-gray-900">₹{Number(attr.amount).toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 text-gray-500">{attr.formatted_date}</td>
                     </tr>
                   ))
                 )}
@@ -173,6 +177,10 @@ export default function InvoiceAttributionHistory() {
             </table>
           </div>
         </>
+      ) : (
+        <div className="h-64 flex items-center justify-center border-2 border-dashed rounded-xl text-gray-400">
+          Enter a 10-digit phone number to fetch history.
+        </div>
       )}
     </div>
   )
