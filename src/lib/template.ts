@@ -150,7 +150,7 @@ export function ChurchReceipt(invoice: any) {
   <script src="${tailwindScript}"></script>
   <style>
     @page {
-      size: A5 landscape;
+      size: auto;
       margin: 0;
     }
     body {
