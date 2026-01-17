@@ -149,7 +149,7 @@ export default function InvoiceHistory() {
       const response = await fetch(`/api/invoices/stats?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch total amount')
       const { data } = await response.json()
-      
+
       if (data && data[0] && data[0].total !== null) {
         setTotalAmount(data[0].total)
       }
@@ -173,7 +173,7 @@ export default function InvoiceHistory() {
         method: 'DELETE'
       })
       if (!response.ok) throw new Error('Failed to delete invoice')
-      
+
       setInvoices(invoices => invoices.filter(inv => inv.id !== id))
       fetchGraphData(filterPhone, filterTag, maxDate)
       fetchTotalAmount(filterPhone, filterTag, maxDate)
@@ -252,7 +252,7 @@ export default function InvoiceHistory() {
                   <SelectItem key={tag.tag_id} value={tag.tag_id}>
                     {tag.tag_name}
                   </SelectItem>
-              ))}
+                ))}
             </SelectContent>
           </Select>
         </div>
@@ -341,7 +341,7 @@ export default function InvoiceHistory() {
                   <td className="border px-3 py-2">{inv.tags?.tag_name || <span className="italic text-gray-400">None</span>}</td>
                   <td className="border px-3 py-2">{inv.payment_type || <span className="italic text-gray-400">—</span>}</td>
                   <td className="border px-3 py-2 text-right">{inv.amount}</td>
-                  <td className="border px-3 py-2">{inv.payment_reference || <span className="italic text-gray-400">—</span>}</td>  
+                  <td className="border px-3 py-2">{inv.payment_reference || <span className="italic text-gray-400">—</span>}</td>
                   <td className="border px-3 py-2">{new Date(inv.created_at).toLocaleDateString()}</td>
                   <td className="border px-3 py-2">
                     <input
