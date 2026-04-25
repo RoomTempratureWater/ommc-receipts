@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Papa from 'papaparse'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -134,9 +135,36 @@ export default function ExpenditureHistory() {
     }
   }
 
+  const handleExportCSV = () => {
+    if (!expenditures.length) return alert('No expenditures to export')
+
+    const csvData = expenditures.map(exp => ({
+      Title: exp.title,
+      'Payment Type': exp.payment_type,
+      'Payment Reference': exp.payment_reference || '',
+      'Amount (₹)': exp.amount,
+      Date: exp.date,
+      'Debited On': exp.actual_amt_credit_dt ? new Date(exp.actual_amt_credit_dt).toLocaleDateString() : ''
+    }))
+
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `expenditures_export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
-      <h2 className="text-2xl font-semibold text-center">Expenditure History</h2>
+      <div className="flex items-center gap-4 justify-center">
+        <h2 className="text-2xl font-semibold text-center">Expenditure History</h2>
+        <Button variant="outline" size="sm" onClick={handleExportCSV}>Export CSV</Button>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 items-end">
