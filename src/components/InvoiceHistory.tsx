@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Papa from 'papaparse'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
@@ -190,11 +191,41 @@ export default function InvoiceHistory() {
     fetchInvoices(filterPhone, filterTag, maxDate, nextPage, fromDate, paymentRef, paymentType)
   }
 
+  const handleExportCSV = () => {
+    if (!invoices.length) return alert('No invoices to export')
+    
+    const csvData = invoices.map(inv => ({
+      Title: inv.title,
+      Name: inv.name,
+      Phone: inv.phone,
+      Tag: inv.tags?.tag_name || '',
+      'Payment Type': inv.payment_type || '',
+      'Amount (₹)': inv.amount,
+      'Payment Reference': inv.payment_reference || '',
+      Date: new Date(inv.created_at).toLocaleDateString(),
+      'Actual Credit Date': inv.actual_amt_credit_dt ? new Date(inv.actual_amt_credit_dt).toLocaleDateString() : ''
+    }))
+    
+    const csv = Papa.unparse(csvData)
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `invoices_export_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-4 justify-between">
-        <h2 className="text-xl font-semibold">Invoice Dashboard</h2>
+        <div className="flex items-center gap-4 w-full">
+          <h2 className="text-xl font-semibold">Invoice Dashboard</h2>
+          <Button variant="outline" size="sm" onClick={handleExportCSV}>Export CSV</Button>
+        </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Phone Number</label>
