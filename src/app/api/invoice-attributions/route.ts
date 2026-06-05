@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
         name,
         phone,
         formatted_date,
+        effective_month,
         -- Final formatting of the month for the frontend
         TO_CHAR(effective_month, 'Month YYYY') as month_display,
         amount

@@ -38,7 +38,7 @@ export default function AddExpenditureForm() {
   const [subtag, setSubtag] = useState<string | undefined>()
   const [tags, setTags] = useState<Tag[]>([])
   const [date, setDate] = useState(getTodayDate())
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageUrl, setImageUrl] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -74,20 +74,7 @@ export default function AddExpenditureForm() {
     return null
   }
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) setImageFile(file)
-  }
 
-  const uploadImage = async (userId: string) => {
-    if (!imageFile) return null
-
-    // For now, we'll just return a placeholder URL since we're not using Supabase storage
-    // TODO: Implement file storage solution
-    const fileExt = imageFile.name.split('.').pop()
-    const fileName = `${userId}-${Date.now()}.${fileExt}`
-    return `uploads/${fileName}`
-  }
 
   const handleSubmit = async () => {
     setError('')
@@ -101,16 +88,7 @@ export default function AddExpenditureForm() {
     // TODO: Replace with actual user authentication
     const userId = 'temp-user-id'
 
-    let imageUrl: string | null = null
-    let filePath: string | null = null
-
-    try {
-      imageUrl = await uploadImage(userId)
-      if (imageUrl) filePath = imageUrl
-    } catch (err: any) {
-      setError(`Image upload failed: ${err.message}`)
-      return
-    }
+    const filePath = imageUrl || null
 
     const actual_amt_credit_dt = paymentType === 'cheque' ? null : date
 
@@ -148,7 +126,7 @@ export default function AddExpenditureForm() {
       setTag(undefined)
       setSubtag(undefined)
       setDate(getTodayDate())
-      setImageFile(null)
+      setImageUrl('')
     } catch (error: any) {
       setError(error.message)
     }
@@ -254,8 +232,8 @@ export default function AddExpenditureForm() {
       </div>
 
       <div>
-        <Label>Image (optional)</Label>
-        <Input type="file" accept="image/*" onChange={handleImageChange} />
+        <Label>Image Link (optional)</Label>
+        <Input type="url" value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." />
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
