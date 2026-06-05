@@ -71,7 +71,7 @@ export default function ExpenditureHistory() {
         // TODO: Implement file storage solution
         const signed = expenditures.map((exp: any) => ({
           ...exp,
-          signed_image_url: exp.file_path, // Use file_path directly for now
+          signed_image_url: exp.image_url, // Use image_url instead of file_path
         }))
 
         setExpenditures(signed)
@@ -233,7 +233,7 @@ export default function ExpenditureHistory() {
                   <td className="border px-3 py-2">{exp.payment_type}</td>
                   <td className="border px-3 py-2">{exp.payment_reference || '-'}</td>
                   <td className="border px-3 py-2 text-right">₹{exp.amount}</td>
-                  <td className="border px-3 py-2">{exp.date}</td>
+                  <td className="border px-3 py-2">{exp.date.split('T')[0]}</td>
                   <td className="border px-3 py-2">
                     <Input
                       type="date"
@@ -244,8 +244,8 @@ export default function ExpenditureHistory() {
                   </td>
                   <td className="border px-3 py-2 text-center">
                     {exp.signed_image_url ? (
-                      <a href={exp.signed_image_url} target="_blank" rel="noopener noreferrer">
-                        <img src={exp.signed_image_url} alt="thumb" className="w-10 h-10 object-cover rounded" />
+                      <a href={exp.signed_image_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">
+                        View Link
                       </a>
                     ) : (
                       <span className="text-gray-400 italic">None</span>
