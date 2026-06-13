@@ -25,6 +25,9 @@ interface Expenditure {
   image_url?: string
   signed_image_url?: string | null
   actual_amt_credit_dt: string | null
+  users?: {
+    email: string | null
+  } | null
 }
 
 export default function ExpenditureHistory() {
@@ -36,6 +39,7 @@ export default function ExpenditureHistory() {
   const [endDate, setEndDate] = useState('')
   const [paymentRefFilter, setPaymentRefFilter] = useState('')
   const [showPendingCheques, setShowPendingCheques] = useState(false)
+  const [filterEmail, setFilterEmail] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -62,6 +66,7 @@ export default function ExpenditureHistory() {
         if (selectedTags.length) params.append('tags', selectedTags.join(','))
         if (paymentRefFilter) params.append('paymentRef', paymentRefFilter)
         if (showPendingCheques) params.append('onlyPendingCredit', 'true')
+        if (filterEmail.trim()) params.append('email', filterEmail.trim())
 
         const response = await fetch(`/api/expenditures?${params.toString()}`)
         if (!response.ok) throw new Error('Failed to fetch expenditures')
@@ -81,7 +86,7 @@ export default function ExpenditureHistory() {
     }
 
     fetchExpenditures()
-  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques])
+  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail])
 
   const toggleTag = (tagId: string) => {
     const updated = selectedTags.includes(tagId)
@@ -181,6 +186,10 @@ export default function ExpenditureHistory() {
           <Label>Payment Ref</Label>
           <Input value={paymentRefFilter} onChange={e => setPaymentRefFilter(e.target.value)} placeholder="Filter by ref" />
         </div>
+        <div>
+          <Label>Creator Email</Label>
+          <Input value={filterEmail} onChange={e => setFilterEmail(e.target.value)} placeholder="Search by email" />
+        </div>
         <div className="flex items-center gap-1">
           <Checkbox checked={showPendingCheques} onCheckedChange={checked => setShowPendingCheques(Boolean(checked))} />
           <span>Pending Cheques</span>
@@ -213,6 +222,7 @@ export default function ExpenditureHistory() {
           <thead className="sticky top-0 bg-muted z-10">
             <tr>
               <th className="border px-3 py-2 text-left">Title</th>
+              <th className="border px-3 py-2 text-left">Created By</th>
               <th className="border px-3 py-2 text-left">Payment Type</th>
               <th className="border px-3 py-2 text-left">Ref</th>
               <th className="border px-3 py-2 text-right">Amount</th>
@@ -231,6 +241,7 @@ export default function ExpenditureHistory() {
               expenditures.map(exp => (
                 <tr key={exp.id} className="hover:bg-muted/50">
                   <td className="border px-3 py-2">{exp.title}</td>
+                  <td className="border px-3 py-2 text-gray-600">{exp.users?.email || 'System'}</td>
                   <td className="border px-3 py-2">{exp.payment_type}</td>
                   <td className="border px-3 py-2">{exp.payment_reference || '-'}</td>
                   <td className="border px-3 py-2 text-right">₹{exp.amount}</td>

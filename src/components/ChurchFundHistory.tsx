@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -37,7 +38,7 @@ export default function ChurchFundHistory() {
   const [endDate, setEndDate] = useState(getTodayDate())
 
   const fetchAttributions = async () => {
-    if (filterPhone.trim().length !== 10) {
+    if (filterPhone.trim().length === 0) {
       setAttributions([])
       return
     }
@@ -90,6 +91,36 @@ export default function ChurchFundHistory() {
     fetchAttributions()
   }, [filterPhone, startDate, endDate])
 
+  const downloadCSV = () => {
+    if (attributions.length === 0) {
+      alert('No records to export.')
+      return
+    }
+
+    const headers = ['ID', 'Name', 'Attributed Month', 'Amount', 'Date']
+    const rows = attributions.map(attr => [
+      `#${attr.id_short}`,
+      attr.name,
+      attr.month_display,
+      Number(attr.amount).toString(),
+      attr.formatted_date
+    ])
+
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(val => `"${val}"`).join(','))
+      .join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `church_fund_history_${filterPhone}.csv`
+    a.click()
+
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end gap-4 justify-between">
@@ -99,9 +130,8 @@ export default function ChurchFundHistory() {
           <div>
             <label className="block text-sm font-medium mb-1">Phone Number</label>
             <Input
-              placeholder="10 digit phone"
+              placeholder="Phone number"
               value={filterPhone}
-              maxLength={10}
               onChange={e => setFilterPhone(e.target.value.replace(/\D/g, ''))}
               className="w-48"
             />
@@ -114,10 +144,15 @@ export default function ChurchFundHistory() {
             <label className="block text-sm font-medium mb-1">To</label>
             <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
           </div>
+          <div className="flex items-end pb-[2px]">
+            <Button onClick={downloadCSV} variant="outline">
+              ⬇️ Export CSV
+            </Button>
+          </div>
         </div>
       </div>
 
-      {filterPhone.length === 10 ? (
+      {filterPhone.trim().length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="bg-emerald-50 border-emerald-200">
@@ -179,7 +214,7 @@ export default function ChurchFundHistory() {
         </>
       ) : (
         <div className="h-64 flex items-center justify-center border-2 border-dashed rounded-xl text-gray-400">
-          Enter a 10-digit phone number to fetch history.
+          Enter a phone number to fetch history.
         </div>
       )}
     </div>

@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate')
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
     const dateFilterMode = searchParams.get('dateFilterMode')
+    const email = searchParams.get('email')
     const page = parseInt(searchParams.get('page') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '50')
 
@@ -73,11 +74,20 @@ export async function GET(request: NextRequest) {
 
     if (onlyPendingCredit === 'true') where.actual_amt_credit_dt = null
 
+    if (email) {
+      where.users = {
+        email: { contains: email, mode: 'insensitive' }
+      }
+    }
+
     // Allow all users to see all invoices
     const invoices = await db.invoices.findMany({
       where,
-      include: { tags: true },
-      orderBy: { created_at: 'desc' },
+      include: {
+        tags: true,
+        users: { select: { email: true } }
+      },
+      orderBy: { id_short: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize
     })
@@ -94,11 +104,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add authentication back when user auth is implemented
-    // const userId = await getUserIdFromToken(request)
-    // if (!userId) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    const userId = await getUserIdFromToken(request)
 
     const body = await request.json()
     // Exclude id_short from the data since it's auto-increment
@@ -106,7 +112,7 @@ export async function POST(request: NextRequest) {
     const invoice = await db.invoices.create({
       data: {
         ...invoiceData,
-        user_id: null // Set to null instead of invalid UUID string
+        user_id: userId || null
       },
       include: { tags: true }
     })

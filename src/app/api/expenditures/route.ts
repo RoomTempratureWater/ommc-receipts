@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
     const paymentRef = searchParams.get('paymentRef')
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
     const dateFilterMode = searchParams.get('dateFilterMode')
+    const email = searchParams.get('email')
 
     // Build where clause
     const where: any = {}
@@ -55,10 +56,18 @@ export async function GET(request: NextRequest) {
     if (paymentRef) where.payment_reference = { contains: paymentRef, mode: 'insensitive' }
     if (onlyPendingCredit === 'true') where.actual_amt_credit_dt = null
 
-    // Allow all users to see all expenditures
+    if (email) {
+      where.users = {
+        email: { contains: email, mode: 'insensitive' }
+      }
+    }
+
     const expenditures = await db.expenditures.findMany({
       where,
-      include: { tags: true },
+      include: {
+        tags: true,
+        users: { select: { email: true } }
+      },
       orderBy: { date: 'desc' }
     })
 
@@ -74,17 +83,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add authentication back when user auth is implemented
-    // const userId = await getUserIdFromToken(request)
-    // if (!userId) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    const userId = await getUserIdFromToken(request)
 
     const body = await request.json()
     const expenditure = await db.expenditures.create({
       data: {
         ...body,
-        user_id: null // Set to null instead of invalid UUID string
+        user_id: userId || null
       },
       include: { tags: true }
     })

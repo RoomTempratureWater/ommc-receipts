@@ -33,6 +33,7 @@ interface Tag {
 interface Member {
   id: string
   first_name: string
+  middle_name?: string
   last_name: string
   address: string
 }
@@ -87,7 +88,7 @@ export default function AddInvoiceForm() {
   useEffect(() => {
     const fetchMembers = async () => {
       const trimmedPhone = phone.trim()
-      if (/^\d{10}$/.test(trimmedPhone)) {
+      if (trimmedPhone.length > 0) {
         try {
           const response = await fetch(`/api/members?phone=${encodeURIComponent(trimmedPhone)}`)
           if (!response.ok) throw new Error('Failed to fetch members')
@@ -111,7 +112,7 @@ export default function AddInvoiceForm() {
   useEffect(() => {
     const fetchLastChurchFundDate = async () => {
       const trimmedPhone = phone.trim()
-      if (selectedTagName === 'Church Fund' && /^\d{10}$/.test(trimmedPhone)) {
+      if (selectedTagName === 'Church Fund' && trimmedPhone.length > 0) {
         try {
           const response = await fetch(`/api/invoice-attributions?phone=${encodeURIComponent(trimmedPhone)}`)
           if (!response.ok) throw new Error('Failed to fetch attributions')
@@ -141,7 +142,7 @@ export default function AddInvoiceForm() {
 
   const validate = () => {
     const trimmedPhone = phone.trim()
-    if (trimmedPhone && !/^\d{10}$/.test(trimmedPhone)) return 'Phone number must be exactly 10 digits if provided.'
+    if (trimmedPhone && !/^\d+$/.test(trimmedPhone)) return 'Phone number must contain only digits if provided.'
     if (!title || !amount || !date) return 'Title, Amount, and Date are required.'
     if (!tag) return 'Please select a tag.'
     if (availableSubtags.length > 0 && !subtag) return 'Please select a subtag for the chosen tag.'
@@ -229,7 +230,6 @@ export default function AddInvoiceForm() {
         <Input
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          maxLength={10}
         />
         {showSuggestions && memberSuggestions.length > 0 && (
           <div className="border rounded bg-white shadow max-h-40 overflow-y-auto text-sm mt-1 z-10 relative">
@@ -238,12 +238,13 @@ export default function AddInvoiceForm() {
                 key={member.id}
                 className="p-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
-                  setName(`${member.first_name} ${member.last_name}`)
+                  const middle = member.middle_name ? ` ${member.middle_name}` : ''
+                  setName(`${member.first_name}${middle} ${member.last_name}`)
                   setAddress(member.address)
                   setShowSuggestions(false)
                 }}
               >
-                {member.first_name} {member.last_name}
+                {member.first_name}{member.middle_name ? ` ${member.middle_name}` : ''} {member.last_name}
               </div>
             ))}
           </div>

@@ -29,31 +29,34 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const phone = searchParams.get('phone')
+    const body = await request.json()
+    const { id, first_name, middle_name, last_name, phone, address } = body
 
-    if (!phone) {
-      return NextResponse.json({ error: 'Phone parameter is required' }, { status: 400 })
+    if (!id) {
+      return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 })
     }
 
-    // Find the member first, then delete by ID since phone is not unique
-    const member = await db.members.findFirst({
-      where: { phone }
+    const member = await db.members.update({
+      where: { id: BigInt(id) },
+      data: {
+        first_name,
+        middle_name,
+        last_name,
+        phone,
+        address
+      }
     })
 
-    if (!member) {
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 })
+    const serializedMember = {
+      ...member,
+      id: member.id.toString()
     }
 
-    await db.members.delete({
-      where: { id: member.id }
-    })
-
-    return NextResponse.json({ message: 'Member deleted successfully' }, { status: 200 })
+    return NextResponse.json({ member: serializedMember }, { status: 200 })
   } catch (error) {
-    console.error('Error deleting member:', error)
+    console.error('Error updating member:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

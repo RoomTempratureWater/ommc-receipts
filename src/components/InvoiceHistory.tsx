@@ -35,6 +35,10 @@ type Invoice = {
   actual_amt_credit_dt: string | null;
   id_short: number;
   tags?: Tag;
+  subtag?: string;
+  users?: {
+    email: string | null
+  } | null;
 };
 
 type MonthlyTotal = {
@@ -68,6 +72,7 @@ export default function InvoiceHistory() {
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [onlyPendingCredit, setOnlyPendingCredit] = useState(false)
+  const [filterEmail, setFilterEmail] = useState('')
 
   const pageSize = 50
 
@@ -92,7 +97,8 @@ export default function InvoiceHistory() {
     pageNum = 1,
     fromDate?: string,
     paymentRef?: string,
-    paymentType?: string
+    paymentType?: string,
+    email?: string
   ) => {
     try {
       const params = new URLSearchParams()
@@ -105,6 +111,7 @@ export default function InvoiceHistory() {
       if (onlyPendingCredit) params.append('onlyPendingCredit', 'true')
       params.append('page', pageNum.toString())
       params.append('pageSize', pageSize.toString())
+      if (email?.trim()) params.append('email', email.trim())
 
       const response = await fetch(`/api/invoices?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch invoices')
@@ -161,10 +168,10 @@ export default function InvoiceHistory() {
 
   useEffect(() => {
     setPage(1)
-    fetchInvoices(filterPhone, filterTag, maxDate, 1, fromDate, paymentRef, paymentType)
+    fetchInvoices(filterPhone, filterTag, maxDate, 1, fromDate, paymentRef, paymentType, filterEmail)
     fetchGraphData(filterPhone, filterTag, maxDate)
     fetchTotalAmount(filterPhone, filterTag, maxDate)
-  }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit])
+  }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit, filterEmail])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return
@@ -188,7 +195,7 @@ export default function InvoiceHistory() {
   const loadMore = () => {
     const nextPage = page + 1
     setPage(nextPage)
-    fetchInvoices(filterPhone, filterTag, maxDate, nextPage, fromDate, paymentRef, paymentType)
+    fetchInvoices(filterPhone, filterTag, maxDate, nextPage, fromDate, paymentRef, paymentType, filterEmail)
   }
 
   const handleExportCSV = () => {
@@ -244,6 +251,15 @@ export default function InvoiceHistory() {
             value={paymentRef}
             onChange={e => setPaymentRef(e.target.value)}
             className="w-64"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Creator Email</label>
+          <Input
+            placeholder="Search by email"
+            value={filterEmail}
+            onChange={e => setFilterEmail(e.target.value)}
           />
         </div>
 
@@ -349,6 +365,7 @@ export default function InvoiceHistory() {
               <th className="border px-3 py-2 text-left">Name</th>
               <th className="border px-3 py-2 text-left">Phone</th>
               <th className="border px-3 py-2 text-left">Tag</th>
+              <th className="border px-3 py-2 text-left">Created By</th>
               <th className="border px-3 py-2 text-left">Payment Type</th>
               <th className="border px-3 py-2 text-right">Amount (₹)</th>
               <th className="border px-3 py-2 text-right">Payment Reference</th>
@@ -361,7 +378,7 @@ export default function InvoiceHistory() {
           <tbody>
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={11} className="text-center p-4">No invoices found.</td>
+                <td colSpan={12} className="text-center p-4">No invoices found.</td>
               </tr>
             ) : (
               invoices.map(inv => (
@@ -370,6 +387,7 @@ export default function InvoiceHistory() {
                   <td className="border px-3 py-2">{inv.name}</td>
                   <td className="border px-3 py-2">{inv.phone}</td>
                   <td className="border px-3 py-2">{inv.tags?.tag_name || <span className="italic text-gray-400">None</span>}</td>
+                  <td className="border px-3 py-2">{inv.users?.email || '—'}</td>
                   <td className="border px-3 py-2">{inv.payment_type || <span className="italic text-gray-400">—</span>}</td>
                   <td className="border px-3 py-2 text-right">{inv.amount}</td>
                   <td className="border px-3 py-2">{inv.payment_reference || <span className="italic text-gray-400">—</span>}</td>

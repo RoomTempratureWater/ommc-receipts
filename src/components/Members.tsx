@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 
 interface Member {
   first_name: string
+  middle_name?: string
   last_name: string
   phone: string
   address: string
@@ -41,7 +42,7 @@ export default function MembersList() {
         const { members } = await response.json()
         const withIds = members.map((m: any) => ({
           ...m,
-          id: generateMemberId(m.phone, `${m.first_name}${m.last_name}`),
+          id: m.id || generateMemberId(m.phone, `${m.first_name}${m.middle_name || ''}${m.last_name}`),
         }))
         setMembers(withIds)
         setFiltered(withIds)
@@ -55,21 +56,20 @@ export default function MembersList() {
   useEffect(() => {
     const lower = (s: string) => s?.toLowerCase() ?? ''
     const f = members.filter(m =>
-      `${m.first_name} ${m.last_name}`.toLowerCase().includes(lower(searchName)) &&
+      `${m.first_name} ${m.middle_name ? m.middle_name + ' ' : ''}${m.last_name}`.toLowerCase().includes(lower(searchName)) &&
       lower(m.phone).includes(lower(searchPhone)) &&
       lower(m.address).includes(lower(searchAddress))
     )
     setFiltered(f)
   }, [searchName, searchPhone, searchAddress, members])
 
+  const [newMiddleName, setNewMiddleName] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<Partial<Member>>({})
+
   const handleAddMember = async () => {
     if (!newFirstName || !newLastName || !newPhone || !newAddress) {
-      alert('Please fill in all fields.')
-      return
-    }
-
-    if (members.some(m => m.phone === newPhone)) {
-      alert('A member with this phone number already exists.')
+      alert('Please fill in all fields (Middle Name is optional).')
       return
     }
 
@@ -81,6 +81,7 @@ export default function MembersList() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           first_name: newFirstName,
+          middle_name: newMiddleName,
           last_name: newLastName,
           phone: newPhone,
           address: newAddress,
@@ -92,12 +93,13 @@ export default function MembersList() {
 
       const newMember = {
         ...member,
-        id: generateMemberId(member.phone, `${member.first_name}${member.last_name}`),
+        id: member.id || generateMemberId(member.phone, `${member.first_name}${member.middle_name || ''}${member.last_name}`),
       }
       setMembers(prev => [...prev, newMember])
       setFiltered(prev => [...prev, newMember])
 
       setNewFirstName('')
+      setNewMiddleName('')
       setNewLastName('')
       setNewPhone('')
       setNewAddress('')
@@ -109,28 +111,33 @@ export default function MembersList() {
     }
   }
 
-  const handleDeleteMember = async (memberId: string, phone: string) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this member?')
-    if (!confirmDelete) return
+  const handleSaveEdit = async () => {
+    if (!window.confirm('Are you sure you want to edit this member?')) return
 
     try {
-      const response = await fetch(`/api/members?phone=${encodeURIComponent(phone)}`, {
-        method: 'DELETE'
+      const response = await fetch('/api/members', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
       })
       
-      if (!response.ok) throw new Error('Failed to delete member')
+      if (!response.ok) throw new Error('Failed to update member')
       
-      setMembers(prev => prev.filter(m => m.id !== memberId))
-      setFiltered(prev => prev.filter(m => m.id !== memberId))
+      const { member } = await response.json()
+      
+      setMembers(prev => prev.map(m => m.id === member.id ? member : m))
+      setFiltered(prev => prev.map(m => m.id === member.id ? member : m))
+      setEditingId(null)
+      window.alert('Member updated successfully!')
     } catch (error) {
-      console.error('Error deleting member:', error)
-      alert('Error deleting member.')
+      console.error('Error updating member:', error)
+      alert('Error updating member.')
     }
   }
 
   const downloadCSV = () => {
     const headers = ['Name', 'Phone', 'Address']
-    const rows = filtered.map(m => [`${m.first_name} ${m.last_name}`, m.phone, m.address])
+    const rows = filtered.map(m => [`${m.first_name} ${m.middle_name ? m.middle_name + ' ' : ''}${m.last_name}`, m.phone, m.address])
     const csvContent = [headers, ...rows]
       .map(row => row.map(val => `"${val}"`).join(','))
       .join('\n')
@@ -153,10 +160,14 @@ export default function MembersList() {
       {/* Add New Member Form */}
       <div className="p-4 border rounded-md bg-muted/20 space-y-2">
         <h3 className="text-lg font-semibold">Add New Member</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
           <div>
             <Label>First Name</Label>
             <Input value={newFirstName} onChange={e => setNewFirstName(e.target.value)} />
+          </div>
+          <div>
+            <Label>Middle Name</Label>
+            <Input value={newMiddleName} onChange={e => setNewMiddleName(e.target.value)} />
           </div>
           <div>
             <Label>Last Name</Label>
@@ -228,18 +239,43 @@ export default function MembersList() {
             ) : (
               filtered.map(member => (
                 <tr key={member.id} className="hover:bg-muted/40">
-                  <td className="p-2 border">{member.first_name} {member.last_name}</td>
-                  <td className="p-2 border">{member.phone}</td>
-                  <td className="p-2 border">{member.address}</td>
-                  <td className="p-2 border text-center">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteMember(member.id, member.phone)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
+                  {editingId === member.id ? (
+                    <>
+                      <td className="p-2 border space-y-1">
+                        <Input value={editForm.first_name || ''} onChange={e => setEditForm({...editForm, first_name: e.target.value})} placeholder="First" className="h-8" />
+                        <Input value={editForm.middle_name || ''} onChange={e => setEditForm({...editForm, middle_name: e.target.value})} placeholder="Middle" className="h-8" />
+                        <Input value={editForm.last_name || ''} onChange={e => setEditForm({...editForm, last_name: e.target.value})} placeholder="Last" className="h-8" />
+                      </td>
+                      <td className="p-2 border">
+                        <Input value={editForm.phone || ''} onChange={e => setEditForm({...editForm, phone: e.target.value})} className="h-8" />
+                      </td>
+                      <td className="p-2 border">
+                        <Input value={editForm.address || ''} onChange={e => setEditForm({...editForm, address: e.target.value})} className="h-8" />
+                      </td>
+                      <td className="p-2 border text-center space-x-2">
+                        <Button variant="default" size="sm" onClick={handleSaveEdit}>Save</Button>
+                        <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancel</Button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="p-2 border">{member.first_name} {member.middle_name ? member.middle_name + ' ' : ''}{member.last_name}</td>
+                      <td className="p-2 border">{member.phone}</td>
+                      <td className="p-2 border">{member.address}</td>
+                      <td className="p-2 border text-center">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            setEditingId(member.id)
+                            setEditForm(member)
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))
             )}

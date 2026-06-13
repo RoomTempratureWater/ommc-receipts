@@ -31,3 +31,12 @@ BEGIN
     LEFT JOIN expense_totals e ON e.payment_group = groups.payment_group;
 END;
 $function$;
+
+-- Add middle_name to members
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS middle_name VARCHAR;
+
+-- Reset the members ID sequence in case it is out of sync
+SELECT setval(pg_get_serial_sequence('public.members', 'id'), coalesce(max(id), 0) + 1, false) FROM public.members;
+
+-- Remove phone length limit from invoices
+ALTER TABLE public.invoices ALTER COLUMN phone TYPE VARCHAR;
