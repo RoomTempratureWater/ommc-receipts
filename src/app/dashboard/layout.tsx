@@ -83,6 +83,7 @@ export default function DashboardLayout({
       <SidebarButton label="Expenditure History" emoji="📉" href="/dashboard/expenditure-history" />
       <SidebarButton label="Balance Sheet" emoji="📊" href="/dashboard/balance-sheet" />
       <SidebarButton label="Members" emoji="🧑" href="/dashboard/members" />
+      <SidebarButton label="Database Backup" emoji="💾" href="/dashboard/backup" />
 
       <div className="mt-auto text-sm pt-4 border-t" style={{ borderColor: 'var(--color-sidebar-border)' }}>
         <p className="mb-2">Signed in as:</p>
