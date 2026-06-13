@@ -390,6 +390,7 @@ exports.Prisma.MembersScalarFieldEnum = {
   created_at: 'created_at',
   phone: 'phone',
   first_name: 'first_name',
+  middle_name: 'middle_name',
   address: 'address',
   last_name: 'last_name'
 };

@@ -29,12 +29,18 @@ export async function POST(request: NextRequest) {
 
     if (type === 'invoice') {
       const tag = await db.invoice_tags.create({
-        data: tagData
+        data: {
+          tag_id: crypto.randomUUID(),
+          ...tagData
+        }
       })
       return NextResponse.json({ tag }, { status: 201 })
     } else if (type === 'expense') {
       const tag = await db.expense_tags.create({
-        data: tagData
+        data: {
+          tag_id: crypto.randomUUID(),
+          ...tagData
+        }
       })
       return NextResponse.json({ tag }, { status: 201 })
     } else {

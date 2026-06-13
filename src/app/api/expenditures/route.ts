@@ -28,13 +28,27 @@ export async function GET(request: NextRequest) {
     const tags = searchParams.get('tags')
     const paymentRef = searchParams.get('paymentRef')
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
+    const dateFilterMode = searchParams.get('dateFilterMode')
+    const email = searchParams.get('email')
 
     // Build where clause
     const where: any = {}
     
-    // Filter by date field (the expenditure date), not actual_amt_credit_dt
-    if (startDate) where.date = { gte: new Date(startDate) }
-    if (endDate) where.date = { ...where.date, lte: new Date(endDate) }
+    // Filter by date field (the expenditure date), not actual_amt_credit_dt unless dateFilterMode=actual
+    if (dateFilterMode === 'actual') {
+      if (startDate) where.actual_amt_credit_dt = { gte: new Date(startDate) }
+      if (endDate) where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, lte: new Date(endDate) }
+      // Must not be null if filtering by actual credit date
+      if (!where.actual_amt_credit_dt) {
+         where.actual_amt_credit_dt = { not: null }
+      } else if (!where.actual_amt_credit_dt.not) {
+         where.actual_amt_credit_dt.not = null
+      }
+    } else {
+      if (startDate) where.date = { gte: new Date(startDate) }
+      if (endDate) where.date = { ...where.date, lte: new Date(endDate) }
+    }
+    
     if (tags) {
       const tagArray = tags.split(',').filter(t => t.trim())
       if (tagArray.length) where.tag = { in: tagArray }
@@ -42,10 +56,18 @@ export async function GET(request: NextRequest) {
     if (paymentRef) where.payment_reference = { contains: paymentRef, mode: 'insensitive' }
     if (onlyPendingCredit === 'true') where.actual_amt_credit_dt = null
 
-    // Allow all users to see all expenditures
+    if (email) {
+      where.users = {
+        email: { contains: email, mode: 'insensitive' }
+      }
+    }
+
     const expenditures = await db.expenditures.findMany({
       where,
-      include: { tags: true },
+      include: {
+        tags: true,
+        users: { select: { email: true } }
+      },
       orderBy: { date: 'desc' }
     })
 
@@ -61,17 +83,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add authentication back when user auth is implemented
-    // const userId = await getUserIdFromToken(request)
-    // if (!userId) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    const userId = await getUserIdFromToken(request)
 
     const body = await request.json()
     const expenditure = await db.expenditures.create({
       data: {
         ...body,
-        user_id: null // Set to null instead of invalid UUID string
+        user_id: userId || null
       },
       include: { tags: true }
     })

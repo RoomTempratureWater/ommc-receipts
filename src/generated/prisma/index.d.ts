@@ -27914,6 +27914,7 @@ export namespace Prisma {
     created_at: Date | null
     phone: string | null
     first_name: string | null
+    middle_name: string | null
     address: string | null
     last_name: string | null
   }
@@ -27923,6 +27924,7 @@ export namespace Prisma {
     created_at: Date | null
     phone: string | null
     first_name: string | null
+    middle_name: string | null
     address: string | null
     last_name: string | null
   }
@@ -27932,6 +27934,7 @@ export namespace Prisma {
     created_at: number
     phone: number
     first_name: number
+    middle_name: number
     address: number
     last_name: number
     _all: number
@@ -27951,6 +27954,7 @@ export namespace Prisma {
     created_at?: true
     phone?: true
     first_name?: true
+    middle_name?: true
     address?: true
     last_name?: true
   }
@@ -27960,6 +27964,7 @@ export namespace Prisma {
     created_at?: true
     phone?: true
     first_name?: true
+    middle_name?: true
     address?: true
     last_name?: true
   }
@@ -27969,6 +27974,7 @@ export namespace Prisma {
     created_at?: true
     phone?: true
     first_name?: true
+    middle_name?: true
     address?: true
     last_name?: true
     _all?: true
@@ -28065,6 +28071,7 @@ export namespace Prisma {
     created_at: Date
     phone: string | null
     first_name: string | null
+    middle_name: string | null
     address: string | null
     last_name: string | null
     _count: MembersCountAggregateOutputType | null
@@ -28093,6 +28100,7 @@ export namespace Prisma {
     created_at?: boolean
     phone?: boolean
     first_name?: boolean
+    middle_name?: boolean
     address?: boolean
     last_name?: boolean
   }, ExtArgs["result"]["members"]>
@@ -28102,6 +28110,7 @@ export namespace Prisma {
     created_at?: boolean
     phone?: boolean
     first_name?: boolean
+    middle_name?: boolean
     address?: boolean
     last_name?: boolean
   }, ExtArgs["result"]["members"]>
@@ -28111,6 +28120,7 @@ export namespace Prisma {
     created_at?: boolean
     phone?: boolean
     first_name?: boolean
+    middle_name?: boolean
     address?: boolean
     last_name?: boolean
   }, ExtArgs["result"]["members"]>
@@ -28120,11 +28130,12 @@ export namespace Prisma {
     created_at?: boolean
     phone?: boolean
     first_name?: boolean
+    middle_name?: boolean
     address?: boolean
     last_name?: boolean
   }
 
-  export type membersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "created_at" | "phone" | "first_name" | "address" | "last_name", ExtArgs["result"]["members"]>
+  export type membersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "created_at" | "phone" | "first_name" | "middle_name" | "address" | "last_name", ExtArgs["result"]["members"]>
 
   export type $membersPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "members"
@@ -28134,6 +28145,7 @@ export namespace Prisma {
       created_at: Date
       phone: string | null
       first_name: string | null
+      middle_name: string | null
       address: string | null
       last_name: string | null
     }, ExtArgs["result"]["members"]>
@@ -28563,6 +28575,7 @@ export namespace Prisma {
     readonly created_at: FieldRef<"members", 'DateTime'>
     readonly phone: FieldRef<"members", 'String'>
     readonly first_name: FieldRef<"members", 'String'>
+    readonly middle_name: FieldRef<"members", 'String'>
     readonly address: FieldRef<"members", 'String'>
     readonly last_name: FieldRef<"members", 'String'>
   }
@@ -30353,6 +30366,7 @@ export namespace Prisma {
     created_at: 'created_at',
     phone: 'phone',
     first_name: 'first_name',
+    middle_name: 'middle_name',
     address: 'address',
     last_name: 'last_name'
   };
@@ -32307,6 +32321,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"members"> | Date | string
     phone?: StringNullableFilter<"members"> | string | null
     first_name?: StringNullableFilter<"members"> | string | null
+    middle_name?: StringNullableFilter<"members"> | string | null
     address?: StringNullableFilter<"members"> | string | null
     last_name?: StringNullableFilter<"members"> | string | null
   }
@@ -32316,6 +32331,7 @@ export namespace Prisma {
     created_at?: SortOrder
     phone?: SortOrderInput | SortOrder
     first_name?: SortOrderInput | SortOrder
+    middle_name?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
     last_name?: SortOrderInput | SortOrder
   }
@@ -32328,6 +32344,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"members"> | Date | string
     phone?: StringNullableFilter<"members"> | string | null
     first_name?: StringNullableFilter<"members"> | string | null
+    middle_name?: StringNullableFilter<"members"> | string | null
     address?: StringNullableFilter<"members"> | string | null
     last_name?: StringNullableFilter<"members"> | string | null
   }, "id">
@@ -32337,6 +32354,7 @@ export namespace Prisma {
     created_at?: SortOrder
     phone?: SortOrderInput | SortOrder
     first_name?: SortOrderInput | SortOrder
+    middle_name?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
     last_name?: SortOrderInput | SortOrder
     _count?: membersCountOrderByAggregateInput
@@ -32354,6 +32372,7 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"members"> | Date | string
     phone?: StringNullableWithAggregatesFilter<"members"> | string | null
     first_name?: StringNullableWithAggregatesFilter<"members"> | string | null
+    middle_name?: StringNullableWithAggregatesFilter<"members"> | string | null
     address?: StringNullableWithAggregatesFilter<"members"> | string | null
     last_name?: StringNullableWithAggregatesFilter<"members"> | string | null
   }
@@ -34301,6 +34320,7 @@ export namespace Prisma {
     created_at?: Date | string
     phone?: string | null
     first_name?: string | null
+    middle_name?: string | null
     address?: string | null
     last_name?: string | null
   }
@@ -34310,6 +34330,7 @@ export namespace Prisma {
     created_at?: Date | string
     phone?: string | null
     first_name?: string | null
+    middle_name?: string | null
     address?: string | null
     last_name?: string | null
   }
@@ -34319,6 +34340,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    middle_name?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     last_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -34328,6 +34350,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    middle_name?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     last_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -34337,6 +34360,7 @@ export namespace Prisma {
     created_at?: Date | string
     phone?: string | null
     first_name?: string | null
+    middle_name?: string | null
     address?: string | null
     last_name?: string | null
   }
@@ -34346,6 +34370,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    middle_name?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     last_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -34355,6 +34380,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    middle_name?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     last_name?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -35918,6 +35944,7 @@ export namespace Prisma {
     created_at?: SortOrder
     phone?: SortOrder
     first_name?: SortOrder
+    middle_name?: SortOrder
     address?: SortOrder
     last_name?: SortOrder
   }
@@ -35931,6 +35958,7 @@ export namespace Prisma {
     created_at?: SortOrder
     phone?: SortOrder
     first_name?: SortOrder
+    middle_name?: SortOrder
     address?: SortOrder
     last_name?: SortOrder
   }
@@ -35940,6 +35968,7 @@ export namespace Prisma {
     created_at?: SortOrder
     phone?: SortOrder
     first_name?: SortOrder
+    middle_name?: SortOrder
     address?: SortOrder
     last_name?: SortOrder
   }
