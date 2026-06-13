@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
+    const dateFilterMode = searchParams.get('dateFilterMode')
     const page = parseInt(searchParams.get('page') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '50')
 
@@ -48,12 +49,28 @@ export async function GET(request: NextRequest) {
     const effectiveStartDate = startDate || fromDate
     const effectiveEndDate = endDate || maxDate
     
-    if (effectiveEndDate) {
-      where.created_at = { ...where.created_at, lte: new Date(effectiveEndDate + 'T23:59:59') }
+    if (dateFilterMode === 'actual') {
+      if (effectiveEndDate) {
+        where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, lte: new Date(effectiveEndDate + 'T23:59:59') }
+      }
+      if (effectiveStartDate) {
+        where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, gte: new Date(effectiveStartDate + 'T00:00:00') }
+      }
+      // Must not be null if filtering by actual credit date
+      if (!where.actual_amt_credit_dt) {
+         where.actual_amt_credit_dt = { not: null }
+      } else if (!where.actual_amt_credit_dt.not) {
+         where.actual_amt_credit_dt.not = null
+      }
+    } else {
+      if (effectiveEndDate) {
+        where.created_at = { ...where.created_at, lte: new Date(effectiveEndDate + 'T23:59:59') }
+      }
+      if (effectiveStartDate) {
+        where.created_at = { ...where.created_at, gte: new Date(effectiveStartDate + 'T00:00:00') }
+      }
     }
-    if (effectiveStartDate) {
-      where.created_at = { ...where.created_at, gte: new Date(effectiveStartDate + 'T00:00:00') }
-    }
+
     if (onlyPendingCredit === 'true') where.actual_amt_credit_dt = null
 
     // Allow all users to see all invoices
@@ -103,6 +120,40 @@ export async function POST(request: NextRequest) {
         error: 'Internal server error',
         message: error?.message || 'Unknown error',
         code: error?.code
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    // TODO: Add authentication back when user auth is implemented
+    // const userId = await getUserIdFromToken(request)
+    // if (!userId) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // }
+
+    const body = await request.json()
+    const { id, ...updateData } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    }
+
+    const invoice = await db.invoices.update({
+      where: { id },
+      data: updateData,
+      include: { tags: true }
+    })
+
+    return NextResponse.json({ invoice }, { status: 200 })
+  } catch (error: any) {
+    console.error('Error updating invoice:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        message: error?.message || 'Unknown error'
       },
       { status: 500 }
     )

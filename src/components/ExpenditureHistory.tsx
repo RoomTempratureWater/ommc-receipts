@@ -102,6 +102,7 @@ export default function ExpenditureHistory() {
   }
 
   const updateCreditDate = async (id: string, newDate: string | null) => {
+    if (!window.confirm('Are you sure you want to update the credit date?')) return
     try {
       const response = await fetch('/api/expenditures', {
         method: 'PUT',

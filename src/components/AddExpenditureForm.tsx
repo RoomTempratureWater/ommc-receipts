@@ -13,7 +13,11 @@ import {
 } from '@/components/ui/select'
 
 function getTodayDate() {
-  return new Date().toISOString().split('T')[0]
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 function getISTTimestamp() {
@@ -41,6 +45,7 @@ export default function AddExpenditureForm() {
   const [imageUrl, setImageUrl] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [resetKey, setResetKey] = useState(0)
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -127,6 +132,7 @@ export default function AddExpenditureForm() {
       setSubtag(undefined)
       setDate(getTodayDate())
       setImageUrl('')
+      setResetKey(prev => prev + 1)
     } catch (error: any) {
       setError(error.message)
     }
@@ -179,7 +185,7 @@ export default function AddExpenditureForm() {
 
       <div>
         <Label>Tag</Label>
-        <Select value={tag} onValueChange={(value) => {
+        <Select key={resetKey} value={tag} onValueChange={(value) => {
           setTag(value)
           setSubtag(undefined) // Reset subtag when tag changes
         }}>

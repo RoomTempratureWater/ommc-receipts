@@ -381,17 +381,27 @@ export default function InvoiceHistory() {
                       value={inv.actual_amt_credit_dt?.slice(0, 10) || ''}
                       onChange={async (e) => {
                         const newDate = e.target.value
-                        const { error } = await supabase
-                          .from('invoices')
-                          .update({ actual_amt_credit_dt: newDate || null })
-                          .eq('id', inv.id)
-                        if (!error) {
+                        if (!window.confirm('Are you sure you want to update the credit date?')) return
+                        
+                        try {
+                          const response = await fetch('/api/invoices', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              id: inv.id,
+                              actual_amt_credit_dt: newDate ? new Date(newDate) : null
+                            })
+                          })
+                          
+                          if (!response.ok) throw new Error('Failed to update date')
+                          
                           setInvoices((prev) =>
                             prev.map((row) =>
                               row.id === inv.id ? { ...row, actual_amt_credit_dt: newDate || null } : row
                             )
                           )
-                        } else {
+                        } catch (error) {
+                          console.error(error)
                           alert('Failed to update date')
                         }
                       }}

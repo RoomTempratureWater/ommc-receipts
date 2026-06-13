@@ -57,6 +57,7 @@ export default function AddInvoiceForm() {
   const [memberSuggestions, setMemberSuggestions] = useState<Member[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lastChurchFundDate, setLastChurchFundDate] = useState<string | null>(null)
+  const [resetKey, setResetKey] = useState(0)
 
   const selectedTagName = tags.find(t => t.tag_id === tag)?.tag_name
   const selectedTag = tags.find(t => t.tag_id === tag)
@@ -213,6 +214,7 @@ export default function AddInvoiceForm() {
       setPaymentType('cash')
       setPaymentReference('')
       setLastChurchFundDate(null)
+      setResetKey(prev => prev + 1)
     } catch (error: any) {
       setError(error.message)
     }
@@ -275,7 +277,7 @@ export default function AddInvoiceForm() {
 
       <div>
         <Label>Tag</Label>
-        <Select value={tag} onValueChange={(value) => {
+        <Select key={resetKey} value={tag} onValueChange={(value) => {
           setTag(value)
           setSubtag(undefined) // Reset subtag when tag changes
         }}>
