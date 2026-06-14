@@ -82,6 +82,7 @@ export default function DashboardLayout({
       <SidebarButton label="Add Expenditure" emoji="💸" href="/dashboard/add-expenditure" />
       <SidebarButton label="Expenditure History" emoji="📉" href="/dashboard/expenditure-history" />
       <SidebarButton label="Balance Sheet" emoji="📊" href="/dashboard/balance-sheet" />
+      <SidebarButton label="Ledger" emoji="📓" href="/dashboard/ledger" />
       <SidebarButton label="Members" emoji="🧑" href="/dashboard/members" />
       <SidebarButton label="Database Backup" emoji="💾" href="/dashboard/backup" />
 
