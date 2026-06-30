@@ -4,7 +4,8 @@ import { db } from '@/lib/database'
 export async function GET() {
   try {
     const tags = await db.invoice_tags.findMany({
-      select: { tag_id: true, tag_name: true }
+      select: { tag_id: true, tag_name: true },
+      orderBy: { tag_name: 'asc' }
     })
 
     return NextResponse.json({ tags }, { status: 200 })

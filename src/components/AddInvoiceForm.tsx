@@ -168,6 +168,16 @@ export default function AddInvoiceForm() {
 
     const useValidRange = useRange && fromDate && toDate
 
+    let finalEffectiveFrom = null;
+    let finalEffectiveTo = null;
+    if (useValidRange) {
+      const [fromYear, fromMonth] = fromDate.split('-');
+      finalEffectiveFrom = new Date(Date.UTC(Number(fromYear), Number(fromMonth) - 1, 1));
+      
+      const [toYear, toMonth] = toDate.split('-');
+      finalEffectiveTo = new Date(Date.UTC(Number(toYear), Number(toMonth), 0));
+    }
+
     const invoiceData = {
       phone: phone.trim() || null,
       name: name || null,
@@ -177,8 +187,8 @@ export default function AddInvoiceForm() {
       tag: tag!, // this is tag_id from invoice_tags
       subtag: subtag || null,
       address: address || null,
-      effective_from: useValidRange ? new Date(fromDate) : null,
-      effective_to: useValidRange ? new Date(toDate) : null,
+      effective_from: finalEffectiveFrom,
+      effective_to: finalEffectiveTo,
       user_id: user.id,
       payment_type: paymentType,
       payment_reference: paymentType !== 'cash' ? paymentReference : null,
@@ -345,11 +355,11 @@ export default function AddInvoiceForm() {
             <>
               <div>
                 <Label>From (Start Month)</Label>
-                <Input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} />
+                <Input type="month" value={fromDate} onChange={e => setFromDate(e.target.value)} />
               </div>
               <div>
                 <Label>To (End Month)</Label>
-                <Input type="date" value={toDate} onChange={e => setToDate(e.target.value)} />
+                <Input type="month" value={toDate} onChange={e => setToDate(e.target.value)} />
               </div>
             </>
           )}
