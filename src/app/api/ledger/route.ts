@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     // Group invoices
     const invoicesGrouped = await db.invoices.groupBy({
-      by: ['actual_amt_credit_dt', 'tag'],
+      by: ['actual_amt_credit_dt', 'tag', 'payment_type'],
       _sum: {
         amount: true
       },
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     // Group expenditures
     const expendituresGrouped = await db.expenditures.groupBy({
-      by: ['actual_amt_credit_dt', 'tag'],
+      by: ['actual_amt_credit_dt', 'tag', 'payment_type'],
       _sum: {
         amount: true
       },
@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
       date: item.actual_amt_credit_dt,
       tagId: item.tag,
       tagName: item.tag ? tagMap[item.tag] || 'Unknown' : 'Unknown',
+      paymentType: item.payment_type || 'Unknown',
       amount: Number(item._sum.amount) || 0
     }));
 
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
       date: item.actual_amt_credit_dt,
       tagId: item.tag,
       tagName: item.tag ? tagMap[item.tag] || 'Unknown' : 'Unknown',
+      paymentType: item.payment_type || 'Unknown',
       amount: Number(item._sum.amount) || 0
     }));
 

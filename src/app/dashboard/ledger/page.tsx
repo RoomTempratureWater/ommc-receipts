@@ -6,7 +6,9 @@ interface LedgerEntry {
   date: string;
   tagId: string;
   tagName: string;
-  amount: number;
+  cashAmount: number;
+  bankAmount: number;
+  totalAmount: number;
 }
 
 export default function LedgerPage() {
@@ -33,8 +35,33 @@ export default function LedgerPage() {
       const res = await fetch(`/api/ledger?${params.toString()}`)
       if (!res.ok) throw new Error('Failed to fetch ledger data')
       const data = await res.json()
-      setInvoices(data.invoices || [])
-      setExpenditures(data.expenditures || [])
+      const aggregateData = (items: any[]) => {
+        const map = new Map<string, LedgerEntry>()
+        items.forEach(item => {
+          const key = `${item.date}-${item.tagId}`
+          if (!map.has(key)) {
+            map.set(key, {
+              date: item.date,
+              tagId: item.tagId,
+              tagName: item.tagName,
+              cashAmount: 0,
+              bankAmount: 0,
+              totalAmount: 0
+            })
+          }
+          const entry = map.get(key)!
+          if (item.paymentType?.toLowerCase() === 'cash') {
+            entry.cashAmount += item.amount
+          } else {
+            entry.bankAmount += item.amount
+          }
+          entry.totalAmount += item.amount
+        })
+        return Array.from(map.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      }
+
+      setInvoices(aggregateData(data.invoices || []))
+      setExpenditures(aggregateData(data.expenditures || []))
     } catch (error) {
       console.error(error)
       alert('Failed to fetch ledger data')
@@ -48,7 +75,9 @@ export default function LedgerPage() {
     
     // Header
     const rows = [
-      ['Invoice Date', 'Invoice Tag', 'Invoice Amount', 'Expense Date', 'Expense Tag', 'Expense Amount']
+      [`"LEDGER from ${fromDate} to ${toDate}"`],
+      [],
+      ['Invoice Date', 'Invoice Tag', 'Inv Cash', 'Inv Bank', 'Inv Total', 'Expense Date', 'Expense Tag', 'Exp Cash', 'Exp Bank', 'Exp Total']
     ]
 
     for (let i = 0; i < maxLen; i++) {
@@ -57,15 +86,19 @@ export default function LedgerPage() {
       
       const invDate = inv?.date ? new Date(inv.date).toLocaleDateString() : ''
       const invTag = inv?.tagName || ''
-      const invAmt = inv ? inv.amount.toString() : ''
+      const invCash = inv ? inv.cashAmount.toString() : ''
+      const invBank = inv ? inv.bankAmount.toString() : ''
+      const invTotal = inv ? inv.totalAmount.toString() : ''
       
       const expDate = exp?.date ? new Date(exp.date).toLocaleDateString() : ''
       const expTag = exp?.tagName || ''
-      const expAmt = exp ? exp.amount.toString() : ''
+      const expCash = exp ? exp.cashAmount.toString() : ''
+      const expBank = exp ? exp.bankAmount.toString() : ''
+      const expTotal = exp ? exp.totalAmount.toString() : ''
 
       rows.push([
-        `"${invDate}"`, `"${invTag}"`, `"${invAmt}"`,
-        `"${expDate}"`, `"${expTag}"`, `"${expAmt}"`
+        `"${invDate}"`, `"${invTag}"`, `"${invCash}"`, `"${invBank}"`, `"${invTotal}"`,
+        `"${expDate}"`, `"${expTag}"`, `"${expCash}"`, `"${expBank}"`, `"${expTotal}"`
       ])
     }
 
@@ -79,6 +112,11 @@ export default function LedgerPage() {
     link.click()
     document.body.removeChild(link)
   }
+
+  const invoiceCash = invoices.reduce((sum, i) => sum + i.cashAmount, 0);
+  const invoiceBank = invoices.reduce((sum, i) => sum + i.bankAmount, 0);
+  const expCash = expenditures.reduce((sum, e) => sum + e.cashAmount, 0);
+  const expBank = expenditures.reduce((sum, e) => sum + e.bankAmount, 0);
 
   return (
     <div className="p-6">
@@ -109,6 +147,27 @@ export default function LedgerPage() {
         </div>
       </div>
 
+      {!loading && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-green-50 p-4 rounded-lg shadow-sm border border-green-100">
+            <h3 className="text-green-800 text-sm font-medium">Total Invoices (Cash)</h3>
+            <p className="text-2xl font-bold text-green-900">{invoiceCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="bg-green-50 p-4 rounded-lg shadow-sm border border-green-100">
+            <h3 className="text-green-800 text-sm font-medium">Total Invoices (Bank)</h3>
+            <p className="text-2xl font-bold text-green-900">{invoiceBank.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-lg shadow-sm border border-red-100">
+            <h3 className="text-red-800 text-sm font-medium">Total Expenditures (Cash)</h3>
+            <p className="text-2xl font-bold text-red-900">{expCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+          <div className="bg-red-50 p-4 rounded-lg shadow-sm border border-red-100">
+            <h3 className="text-red-800 text-sm font-medium">Total Expenditures (Bank)</h3>
+            <p className="text-2xl font-bold text-red-900">{expBank.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center py-10">Loading ledger data...</div>
       ) : (
@@ -138,7 +197,13 @@ export default function LedgerPage() {
                           {inv.tagName}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-sm text-right text-gray-900 font-medium">
-                          {inv.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          <div className="flex flex-col text-xs text-gray-500 font-normal mb-1">
+                            <span>Cash: {inv.cashAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                            <span>Bank: {inv.bankAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                          </div>
+                          <span className="font-bold text-sm">
+                            Total: {inv.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          </span>
                         </td>
                       </tr>
                     ))}
@@ -173,7 +238,13 @@ export default function LedgerPage() {
                           {exp.tagName}
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-sm text-right text-gray-900 font-medium">
-                          {exp.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          <div className="flex flex-col text-xs text-gray-500 font-normal mb-1">
+                            <span>Cash: {exp.cashAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                            <span>Bank: {exp.bankAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                          </div>
+                          <span className="font-bold text-sm">
+                            Total: {exp.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          </span>
                         </td>
                       </tr>
                     ))}

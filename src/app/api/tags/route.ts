@@ -5,10 +5,10 @@ export async function GET(request: NextRequest) {
   try {
     const [invoiceTags, expenseTags] = await Promise.all([
       db.invoice_tags.findMany({
-        orderBy: { created_at: 'desc' }
+        orderBy: { tag_name: 'asc' }
       }),
       db.expense_tags.findMany({
-        orderBy: { created_at: 'desc' }
+        orderBy: { tag_name: 'asc' }
       })
     ])
     
