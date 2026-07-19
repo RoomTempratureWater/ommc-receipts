@@ -34,8 +34,6 @@ export async function GET(request: NextRequest) {
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
     const dateFilterMode = searchParams.get('dateFilterMode')
     const email = searchParams.get('email')
-    const page = parseInt(searchParams.get('page') || '1')
-    const pageSize = parseInt(searchParams.get('pageSize') || '50')
 
     // Build where clause
     const where: any = {}
@@ -87,9 +85,7 @@ export async function GET(request: NextRequest) {
         tags: true,
         users: { select: { email: true } }
       },
-      orderBy: { id_short: 'desc' },
-      skip: (page - 1) * pageSize,
-      take: pageSize
+      orderBy: { id_short: 'desc' }
     })
 
     return NextResponse.json({ invoices }, { status: 200 })

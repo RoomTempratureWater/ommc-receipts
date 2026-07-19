@@ -50,6 +50,16 @@ function getTodayDate() {
   return new Date().toISOString().split('T')[0]
 }
 
+function formatDateDDMMYYYY(dateStr: string | null | undefined) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [monthlyTotals, setMonthlyTotals] = useState<MonthlyTotal[]>([])
@@ -60,21 +70,17 @@ export default function InvoiceHistory() {
   const [paymentRef, setPaymentRef] = useState('')
   const [paymentType, setPaymentType] = useState<string | undefined>()
 
-  // Default maxDate to a future date to ensure new invoices are visible
-  const [maxDate, setMaxDate] = useState(() => {
-    const futureDate = new Date()
-    futureDate.setFullYear(futureDate.getFullYear() + 1)
-    return futureDate.toISOString().split('T')[0]
+  const [maxDate, setMaxDate] = useState(getTodayDate)
+  const [fromDate, setFromDate] = useState(() => {
+    const d = new Date()
+    d.setMonth(d.getMonth() - 1)
+    return d.toISOString().split('T')[0]
   })
-  const [fromDate, setFromDate] = useState('')
   const [tags, setTags] = useState<Tag[]>([])
 
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
   const [onlyPendingCredit, setOnlyPendingCredit] = useState(false)
   const [filterEmail, setFilterEmail] = useState('')
-
-  const pageSize = 50
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -94,7 +100,6 @@ export default function InvoiceHistory() {
     phone = '',
     tagId?: string,
     maxDate?: string,
-    pageNum = 1,
     fromDate?: string,
     paymentRef?: string,
     paymentType?: string,
@@ -109,16 +114,13 @@ export default function InvoiceHistory() {
       if (maxDate) params.append('maxDate', maxDate)
       if (fromDate) params.append('fromDate', fromDate)
       if (onlyPendingCredit) params.append('onlyPendingCredit', 'true')
-      params.append('page', pageNum.toString())
-      params.append('pageSize', pageSize.toString())
       if (email?.trim()) params.append('email', email.trim())
 
       const response = await fetch(`/api/invoices?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch invoices')
       const { invoices } = await response.json()
 
-      if (pageNum === 1) setInvoices(invoices)
-      else setInvoices(prev => [...prev, ...invoices])
+      setInvoices(invoices)
     } catch (error) {
       console.error('Error fetching invoices:', error)
     }
@@ -167,8 +169,7 @@ export default function InvoiceHistory() {
   }
 
   useEffect(() => {
-    setPage(1)
-    fetchInvoices(filterPhone, filterTag, maxDate, 1, fromDate, paymentRef, paymentType, filterEmail)
+    fetchInvoices(filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, filterEmail)
     fetchGraphData(filterPhone, filterTag, maxDate)
     fetchTotalAmount(filterPhone, filterTag, maxDate)
   }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit, filterEmail])
@@ -192,25 +193,22 @@ export default function InvoiceHistory() {
     }
   }
 
-  const loadMore = () => {
-    const nextPage = page + 1
-    setPage(nextPage)
-    fetchInvoices(filterPhone, filterTag, maxDate, nextPage, fromDate, paymentRef, paymentType, filterEmail)
-  }
-
   const handleExportCSV = () => {
     if (!invoices.length) return alert('No invoices to export')
     
     const csvData = invoices.map(inv => ({
+      'Invoice No.': inv.id_short,
       Title: inv.title,
       Name: inv.name,
       Phone: inv.phone,
       Tag: inv.tags?.tag_name || '',
+      'Created By': inv.users?.email || '',
       'Payment Type': inv.payment_type || '',
       'Amount (₹)': inv.amount,
       'Payment Reference': inv.payment_reference || '',
-      Date: new Date(inv.created_at).toLocaleDateString(),
-      'Actual Credit Date': inv.actual_amt_credit_dt ? new Date(inv.actual_amt_credit_dt).toLocaleDateString() : ''
+      Date: formatDateDDMMYYYY(inv.created_at),
+      'Actual Credit Date': formatDateDDMMYYYY(inv.actual_amt_credit_dt),
+      'Record Create Date': formatDateDDMMYYYY(inv.created_at)
     }))
     
     const csv = Papa.unparse(csvData)
@@ -361,6 +359,7 @@ export default function InvoiceHistory() {
         <table className="min-w-full border-collapse table-auto">
           <thead className="sticky top-0 bg-muted z-10">
             <tr>
+              <th className="border px-3 py-2 text-left">Invoice No.</th>
               <th className="border px-3 py-2 text-left">Title</th>
               <th className="border px-3 py-2 text-left">Name</th>
               <th className="border px-3 py-2 text-left">Phone</th>
@@ -383,6 +382,7 @@ export default function InvoiceHistory() {
             ) : (
               invoices.map(inv => (
                 <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="border px-3 py-2">{inv.id_short}</td>
                   <td className="border px-3 py-2">{inv.title}</td>
                   <td className="border px-3 py-2">{inv.name}</td>
                   <td className="border px-3 py-2">{inv.phone}</td>
@@ -391,7 +391,7 @@ export default function InvoiceHistory() {
                   <td className="border px-3 py-2">{inv.payment_type || <span className="italic text-gray-400">—</span>}</td>
                   <td className="border px-3 py-2 text-right">{inv.amount}</td>
                   <td className="border px-3 py-2">{inv.payment_reference || <span className="italic text-gray-400">—</span>}</td>
-                  <td className="border px-3 py-2">{new Date(inv.created_at).toLocaleDateString()}</td>
+                  <td className="border px-3 py-2">{formatDateDDMMYYYY(inv.created_at)}</td>
                   <td className="border px-3 py-2">
                     <input
                       type="date"
@@ -442,19 +442,13 @@ export default function InvoiceHistory() {
                       Print
                     </Button>
                   </td>
-                  <td className="border px-3 py-2">{new Date(inv.created_at).toLocaleDateString()}</td>
+                  <td className="border px-3 py-2">{formatDateDDMMYYYY(inv.created_at)}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
-
-      {invoices.length >= page * pageSize && (
-        <div className="text-center">
-          <Button onClick={loadMore} variant="outline">Load More</Button>
-        </div>
-      )}
     </div>
   )
 }
