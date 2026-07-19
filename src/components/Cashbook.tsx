@@ -15,22 +15,22 @@ interface Tag {
   sub_tag2: string | null
 }
 
-interface Record {
+interface TransactionRecord {
   tag: string
   subtag?: string | null
   payment_type: string
   amount: number
 }
 
-export default function BalanceSheet() {
+export default function Cashbook() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
 
   const [invoiceTagsList, setInvoiceTagsList] = useState<Tag[]>([])
   const [expenseTagsList, setExpenseTagsList] = useState<Tag[]>([])
 
-  const [invoiceRecords, setInvoiceRecords] = useState<Record[]>([])
-  const [expenseRecords, setExpenseRecords] = useState<Record[]>([])
+  const [invoiceRecords, setInvoiceRecords] = useState<TransactionRecord[]>([])
+  const [expenseRecords, setExpenseRecords] = useState<TransactionRecord[]>([])
 
   const [selectedInvoiceTags, setSelectedInvoiceTags] = useState<string[]>([])
   const [selectedExpenseTags, setSelectedExpenseTags] = useState<string[]>([])
@@ -118,13 +118,13 @@ export default function BalanceSheet() {
     fetchData()
   }, [startDate, endDate])
 
-  const groupByTagAndType = (data: Record[], selectedTags: string[]) => {
-    const totals: Record<
+  const groupByTagAndType = (data: TransactionRecord[], selectedTags: string[]) => {
+    const totals: globalThis.Record<
       string,
       {
         cash: number
         bank: number
-        subtags: Record<string, { cash: number; bank: number }>
+        subtags: globalThis.Record<string, { cash: number; bank: number }>
       }
     > = {}
 
@@ -208,7 +208,7 @@ export default function BalanceSheet() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <h2 className="text-2xl font-semibold text-center">Balance Sheet</h2>
+      <h2 className="text-2xl font-semibold text-center">Cashbook</h2>
 
       <div className="flex gap-4 flex-wrap items-end">
         <div>

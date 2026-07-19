@@ -30,13 +30,29 @@ interface Expenditure {
   } | null
 }
 
+function formatDateDDMMYYYY(dateStr: string | null | undefined) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 export default function ExpenditureHistory() {
   const [expenditures, setExpenditures] = useState<Expenditure[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [allSelected, setAllSelected] = useState(true)
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date()
+    d.setMonth(d.getMonth() - 1)
+    return d.toISOString().split('T')[0]
+  })
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split('T')[0]
+  })
   const [paymentRefFilter, setPaymentRefFilter] = useState('')
   const [showPendingCheques, setShowPendingCheques] = useState(false)
   const [filterEmail, setFilterEmail] = useState('')
@@ -145,12 +161,14 @@ export default function ExpenditureHistory() {
     if (!expenditures.length) return alert('No expenditures to export')
 
     const csvData = expenditures.map(exp => ({
+      'Expense ID': exp.id.substring(0, 8),
       Title: exp.title,
+      'Created By': exp.users?.email || 'System',
       'Payment Type': exp.payment_type,
       'Payment Reference': exp.payment_reference || '',
       'Amount (₹)': exp.amount,
-      Date: exp.date,
-      'Debited On': exp.actual_amt_credit_dt ? new Date(exp.actual_amt_credit_dt).toLocaleDateString() : ''
+      Date: formatDateDDMMYYYY(exp.date),
+      'Debited On': formatDateDDMMYYYY(exp.actual_amt_credit_dt)
     }))
 
     const csv = Papa.unparse(csvData)
@@ -221,6 +239,7 @@ export default function ExpenditureHistory() {
         <table className="min-w-full border-collapse table-auto text-sm">
           <thead className="sticky top-0 bg-muted z-10">
             <tr>
+              <th className="border px-3 py-2 text-left">Expense ID</th>
               <th className="border px-3 py-2 text-left">Title</th>
               <th className="border px-3 py-2 text-left">Created By</th>
               <th className="border px-3 py-2 text-left">Payment Type</th>
@@ -240,12 +259,13 @@ export default function ExpenditureHistory() {
             ) : (
               expenditures.map(exp => (
                 <tr key={exp.id} className="hover:bg-muted/50">
+                  <td className="border px-3 py-2 text-gray-500 font-mono text-xs">{exp.id.substring(0, 8)}</td>
                   <td className="border px-3 py-2">{exp.title}</td>
                   <td className="border px-3 py-2 text-gray-600">{exp.users?.email || 'System'}</td>
                   <td className="border px-3 py-2">{exp.payment_type}</td>
                   <td className="border px-3 py-2">{exp.payment_reference || '-'}</td>
                   <td className="border px-3 py-2 text-right">₹{exp.amount}</td>
-                  <td className="border px-3 py-2">{exp.date.split('T')[0]}</td>
+                  <td className="border px-3 py-2">{formatDateDDMMYYYY(exp.date)}</td>
                   <td className="border px-3 py-2">
                     <Input
                       type="date"
