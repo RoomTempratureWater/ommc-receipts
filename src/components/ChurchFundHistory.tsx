@@ -154,36 +154,11 @@ export default function ChurchFundHistory() {
 
       {filterPhone.trim().length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-emerald-50 border-emerald-200">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-emerald-600">Total Contributions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-emerald-700">₹{totalAmount.toLocaleString('en-IN')}</div>
-              </CardContent>
-            </Card>
 
-            <Card className="md:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Growth Trend</CardTitle>
-              </CardHeader>
-              <CardContent className="h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyTotals}>
-                    <XAxis dataKey="month" fontSize={10} />
-                    <YAxis fontSize={10} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="total" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
 
-          <div className="border rounded-xl overflow-hidden shadow-sm bg-white">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
+          <div className="border rounded-xl overflow-auto shadow-sm bg-white" style={{ height: 'calc(100vh - 200px)' }}>
+            <table className="w-full text-sm relative">
+              <thead className="sticky top-0 bg-gray-50 border-b z-10 shadow-sm">
                 <tr>
                   <th className="px-4 py-3 text-left">ID</th>
                   <th className="px-4 py-3 text-left">Name</th>

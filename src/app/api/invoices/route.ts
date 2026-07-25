@@ -34,6 +34,13 @@ export async function GET(request: NextRequest) {
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
     const dateFilterMode = searchParams.get('dateFilterMode')
     const email = searchParams.get('email')
+    
+    // New filters
+    const idShort = searchParams.get('idShort')
+    const title = searchParams.get('title')
+    const name = searchParams.get('name')
+    const minAmount = searchParams.get('minAmount')
+    const maxAmount = searchParams.get('maxAmount')
 
     // Build where clause
     const where: any = {}
@@ -42,6 +49,20 @@ export async function GET(request: NextRequest) {
     if (tagId && tagId !== '__all__') where.tag = tagId
     if (paymentRef) where.payment_reference = { contains: paymentRef, mode: 'insensitive' }
     if (paymentType && paymentType !== '__all__') where.payment_type = paymentType
+    
+    // Add new filters
+    if (idShort) {
+      const parsedId = parseInt(idShort)
+      if (!isNaN(parsedId)) where.id_short = parsedId
+    }
+    if (title) where.title = { contains: title, mode: 'insensitive' }
+    if (name) where.name = { contains: name, mode: 'insensitive' }
+    
+    if (minAmount || maxAmount) {
+      where.amount = {}
+      if (minAmount) where.amount.gte = parseFloat(minAmount)
+      if (maxAmount) where.amount.lte = parseFloat(maxAmount)
+    }
     
     // Handle date filtering - support both maxDate/fromDate (InvoiceHistory) and startDate/endDate (BalanceSheet)
     // Use startDate/endDate if provided, otherwise fall back to maxDate/fromDate

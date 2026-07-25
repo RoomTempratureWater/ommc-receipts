@@ -207,7 +207,7 @@ export default function Cashbook() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <h2 className="text-2xl font-semibold text-center">Cashbook</h2>
 
       <div className="flex gap-4 flex-wrap items-end">

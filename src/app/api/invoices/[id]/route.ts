@@ -25,6 +25,21 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const invoice = await db.invoices.findUnique({
+      where: { id: params.id }
+    })
+
+    if (invoice) {
+      await db.deleted_records.create({
+        data: {
+          record_id: invoice.id,
+          record_type: 'INVOICE',
+          record_data: JSON.parse(JSON.stringify(invoice)),
+          deleted_by: userId
+        }
+      })
+    }
+
     await db.invoices.delete({
       where: { id: params.id }
     })

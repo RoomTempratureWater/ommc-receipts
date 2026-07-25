@@ -401,6 +401,15 @@ exports.Prisma.TagsScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.Deleted_recordsScalarFieldEnum = {
+  id: 'id',
+  record_id: 'record_id',
+  record_type: 'record_type',
+  record_data: 'record_data',
+  deleted_by: 'deleted_by',
+  deleted_at: 'deleted_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -490,7 +499,8 @@ exports.Prisma.ModelName = {
   invoices: 'invoices',
   keys: 'keys',
   members: 'members',
-  tags: 'tags'
+  tags: 'tags',
+  deleted_records: 'deleted_records'
 };
 
 /**
