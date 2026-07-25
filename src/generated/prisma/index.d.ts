@@ -158,6 +158,11 @@ export type members = $Result.DefaultSelection<Prisma.$membersPayload>
  * 
  */
 export type tags = $Result.DefaultSelection<Prisma.$tagsPayload>
+/**
+ * Model deleted_records
+ * 
+ */
+export type deleted_records = $Result.DefaultSelection<Prisma.$deleted_recordsPayload>
 
 /**
  * Enums
@@ -599,6 +604,16 @@ export class PrismaClient<
     * ```
     */
   get tags(): Prisma.tagsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deleted_records`: Exposes CRUD operations for the **deleted_records** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Deleted_records
+    * const deleted_records = await prisma.deleted_records.findMany()
+    * ```
+    */
+  get deleted_records(): Prisma.deleted_recordsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1062,7 +1077,8 @@ export namespace Prisma {
     invoices: 'invoices',
     keys: 'keys',
     members: 'members',
-    tags: 'tags'
+    tags: 'tags',
+    deleted_records: 'deleted_records'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1081,7 +1097,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "audit_log_entries" | "flow_state" | "identities" | "instances" | "mfa_amr_claims" | "mfa_challenges" | "mfa_factors" | "oauth_clients" | "one_time_tokens" | "refresh_tokens" | "saml_providers" | "saml_relay_states" | "schema_migrations" | "sessions" | "sso_domains" | "sso_providers" | "users" | "expenditures" | "expense_tags" | "invoice_tags" | "invoices" | "keys" | "members" | "tags"
+      modelProps: "audit_log_entries" | "flow_state" | "identities" | "instances" | "mfa_amr_claims" | "mfa_challenges" | "mfa_factors" | "oauth_clients" | "one_time_tokens" | "refresh_tokens" | "saml_providers" | "saml_relay_states" | "schema_migrations" | "sessions" | "sso_domains" | "sso_providers" | "users" | "expenditures" | "expense_tags" | "invoice_tags" | "invoices" | "keys" | "members" | "tags" | "deleted_records"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2861,6 +2877,80 @@ export namespace Prisma {
           }
         }
       }
+      deleted_records: {
+        payload: Prisma.$deleted_recordsPayload<ExtArgs>
+        fields: Prisma.deleted_recordsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.deleted_recordsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.deleted_recordsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>
+          }
+          findFirst: {
+            args: Prisma.deleted_recordsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.deleted_recordsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>
+          }
+          findMany: {
+            args: Prisma.deleted_recordsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>[]
+          }
+          create: {
+            args: Prisma.deleted_recordsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>
+          }
+          createMany: {
+            args: Prisma.deleted_recordsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.deleted_recordsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>[]
+          }
+          delete: {
+            args: Prisma.deleted_recordsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>
+          }
+          update: {
+            args: Prisma.deleted_recordsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>
+          }
+          deleteMany: {
+            args: Prisma.deleted_recordsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.deleted_recordsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.deleted_recordsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>[]
+          }
+          upsert: {
+            args: Prisma.deleted_recordsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$deleted_recordsPayload>
+          }
+          aggregate: {
+            args: Prisma.Deleted_recordsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeleted_records>
+          }
+          groupBy: {
+            args: Prisma.deleted_recordsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Deleted_recordsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.deleted_recordsCountArgs<ExtArgs>
+            result: $Utils.Optional<Deleted_recordsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2981,6 +3071,7 @@ export namespace Prisma {
     keys?: keysOmit
     members?: membersOmit
     tags?: tagsOmit
+    deleted_records?: deleted_recordsOmit
   }
 
   /* Types for Logging */
@@ -3218,6 +3309,7 @@ export namespace Prisma {
     sessions: number
     expenditures: number
     invoices: number
+    deleted_records: number
   }
 
   export type UsersCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3227,6 +3319,7 @@ export namespace Prisma {
     sessions?: boolean | UsersCountOutputTypeCountSessionsArgs
     expenditures?: boolean | UsersCountOutputTypeCountExpendituresArgs
     invoices?: boolean | UsersCountOutputTypeCountInvoicesArgs
+    deleted_records?: boolean | UsersCountOutputTypeCountDeleted_recordsArgs
   }
 
   // Custom InputTypes
@@ -3280,6 +3373,13 @@ export namespace Prisma {
    */
   export type UsersCountOutputTypeCountInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: invoicesWhereInput
+  }
+
+  /**
+   * UsersCountOutputType without action
+   */
+  export type UsersCountOutputTypeCountDeleted_recordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: deleted_recordsWhereInput
   }
 
 
@@ -21213,6 +21313,7 @@ export namespace Prisma {
     sessions?: boolean | users$sessionsArgs<ExtArgs>
     expenditures?: boolean | users$expendituresArgs<ExtArgs>
     invoices?: boolean | users$invoicesArgs<ExtArgs>
+    deleted_records?: boolean | users$deleted_recordsArgs<ExtArgs>
     _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["users"]>
 
@@ -21338,6 +21439,7 @@ export namespace Prisma {
     sessions?: boolean | users$sessionsArgs<ExtArgs>
     expenditures?: boolean | users$expendituresArgs<ExtArgs>
     invoices?: boolean | users$invoicesArgs<ExtArgs>
+    deleted_records?: boolean | users$deleted_recordsArgs<ExtArgs>
     _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type usersIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -21352,6 +21454,7 @@ export namespace Prisma {
       sessions: Prisma.$sessionsPayload<ExtArgs>[]
       expenditures: Prisma.$expendituresPayload<ExtArgs>[]
       invoices: Prisma.$invoicesPayload<ExtArgs>[]
+      deleted_records: Prisma.$deleted_recordsPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       instance_id: string | null
@@ -21789,6 +21892,7 @@ export namespace Prisma {
     sessions<T extends users$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, users$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$sessionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenditures<T extends users$expendituresArgs<ExtArgs> = {}>(args?: Subset<T, users$expendituresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$expendituresPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invoices<T extends users$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, users$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$invoicesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    deleted_records<T extends users$deleted_recordsArgs<ExtArgs> = {}>(args?: Subset<T, users$deleted_recordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -22382,6 +22486,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InvoicesScalarFieldEnum | InvoicesScalarFieldEnum[]
+  }
+
+  /**
+   * users.deleted_records
+   */
+  export type users$deleted_recordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    where?: deleted_recordsWhereInput
+    orderBy?: deleted_recordsOrderByWithRelationInput | deleted_recordsOrderByWithRelationInput[]
+    cursor?: deleted_recordsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Deleted_recordsScalarFieldEnum | Deleted_recordsScalarFieldEnum[]
   }
 
   /**
@@ -30017,6 +30145,1092 @@ export namespace Prisma {
 
 
   /**
+   * Model deleted_records
+   */
+
+  export type AggregateDeleted_records = {
+    _count: Deleted_recordsCountAggregateOutputType | null
+    _min: Deleted_recordsMinAggregateOutputType | null
+    _max: Deleted_recordsMaxAggregateOutputType | null
+  }
+
+  export type Deleted_recordsMinAggregateOutputType = {
+    id: string | null
+    record_id: string | null
+    record_type: string | null
+    deleted_by: string | null
+    deleted_at: Date | null
+  }
+
+  export type Deleted_recordsMaxAggregateOutputType = {
+    id: string | null
+    record_id: string | null
+    record_type: string | null
+    deleted_by: string | null
+    deleted_at: Date | null
+  }
+
+  export type Deleted_recordsCountAggregateOutputType = {
+    id: number
+    record_id: number
+    record_type: number
+    record_data: number
+    deleted_by: number
+    deleted_at: number
+    _all: number
+  }
+
+
+  export type Deleted_recordsMinAggregateInputType = {
+    id?: true
+    record_id?: true
+    record_type?: true
+    deleted_by?: true
+    deleted_at?: true
+  }
+
+  export type Deleted_recordsMaxAggregateInputType = {
+    id?: true
+    record_id?: true
+    record_type?: true
+    deleted_by?: true
+    deleted_at?: true
+  }
+
+  export type Deleted_recordsCountAggregateInputType = {
+    id?: true
+    record_id?: true
+    record_type?: true
+    record_data?: true
+    deleted_by?: true
+    deleted_at?: true
+    _all?: true
+  }
+
+  export type Deleted_recordsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which deleted_records to aggregate.
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of deleted_records to fetch.
+     */
+    orderBy?: deleted_recordsOrderByWithRelationInput | deleted_recordsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: deleted_recordsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` deleted_records from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` deleted_records.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned deleted_records
+    **/
+    _count?: true | Deleted_recordsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Deleted_recordsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Deleted_recordsMaxAggregateInputType
+  }
+
+  export type GetDeleted_recordsAggregateType<T extends Deleted_recordsAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeleted_records]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeleted_records[P]>
+      : GetScalarType<T[P], AggregateDeleted_records[P]>
+  }
+
+
+
+
+  export type deleted_recordsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: deleted_recordsWhereInput
+    orderBy?: deleted_recordsOrderByWithAggregationInput | deleted_recordsOrderByWithAggregationInput[]
+    by: Deleted_recordsScalarFieldEnum[] | Deleted_recordsScalarFieldEnum
+    having?: deleted_recordsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Deleted_recordsCountAggregateInputType | true
+    _min?: Deleted_recordsMinAggregateInputType
+    _max?: Deleted_recordsMaxAggregateInputType
+  }
+
+  export type Deleted_recordsGroupByOutputType = {
+    id: string
+    record_id: string
+    record_type: string
+    record_data: JsonValue
+    deleted_by: string | null
+    deleted_at: Date
+    _count: Deleted_recordsCountAggregateOutputType | null
+    _min: Deleted_recordsMinAggregateOutputType | null
+    _max: Deleted_recordsMaxAggregateOutputType | null
+  }
+
+  type GetDeleted_recordsGroupByPayload<T extends deleted_recordsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Deleted_recordsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Deleted_recordsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Deleted_recordsGroupByOutputType[P]>
+            : GetScalarType<T[P], Deleted_recordsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type deleted_recordsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    record_id?: boolean
+    record_type?: boolean
+    record_data?: boolean
+    deleted_by?: boolean
+    deleted_at?: boolean
+    users?: boolean | deleted_records$usersArgs<ExtArgs>
+  }, ExtArgs["result"]["deleted_records"]>
+
+  export type deleted_recordsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    record_id?: boolean
+    record_type?: boolean
+    record_data?: boolean
+    deleted_by?: boolean
+    deleted_at?: boolean
+    users?: boolean | deleted_records$usersArgs<ExtArgs>
+  }, ExtArgs["result"]["deleted_records"]>
+
+  export type deleted_recordsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    record_id?: boolean
+    record_type?: boolean
+    record_data?: boolean
+    deleted_by?: boolean
+    deleted_at?: boolean
+    users?: boolean | deleted_records$usersArgs<ExtArgs>
+  }, ExtArgs["result"]["deleted_records"]>
+
+  export type deleted_recordsSelectScalar = {
+    id?: boolean
+    record_id?: boolean
+    record_type?: boolean
+    record_data?: boolean
+    deleted_by?: boolean
+    deleted_at?: boolean
+  }
+
+  export type deleted_recordsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "record_id" | "record_type" | "record_data" | "deleted_by" | "deleted_at", ExtArgs["result"]["deleted_records"]>
+  export type deleted_recordsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | deleted_records$usersArgs<ExtArgs>
+  }
+  export type deleted_recordsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | deleted_records$usersArgs<ExtArgs>
+  }
+  export type deleted_recordsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | deleted_records$usersArgs<ExtArgs>
+  }
+
+  export type $deleted_recordsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "deleted_records"
+    objects: {
+      users: Prisma.$usersPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      record_id: string
+      record_type: string
+      record_data: Prisma.JsonValue
+      deleted_by: string | null
+      deleted_at: Date
+    }, ExtArgs["result"]["deleted_records"]>
+    composites: {}
+  }
+
+  type deleted_recordsGetPayload<S extends boolean | null | undefined | deleted_recordsDefaultArgs> = $Result.GetResult<Prisma.$deleted_recordsPayload, S>
+
+  type deleted_recordsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<deleted_recordsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Deleted_recordsCountAggregateInputType | true
+    }
+
+  export interface deleted_recordsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['deleted_records'], meta: { name: 'deleted_records' } }
+    /**
+     * Find zero or one Deleted_records that matches the filter.
+     * @param {deleted_recordsFindUniqueArgs} args - Arguments to find a Deleted_records
+     * @example
+     * // Get one Deleted_records
+     * const deleted_records = await prisma.deleted_records.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends deleted_recordsFindUniqueArgs>(args: SelectSubset<T, deleted_recordsFindUniqueArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Deleted_records that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {deleted_recordsFindUniqueOrThrowArgs} args - Arguments to find a Deleted_records
+     * @example
+     * // Get one Deleted_records
+     * const deleted_records = await prisma.deleted_records.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends deleted_recordsFindUniqueOrThrowArgs>(args: SelectSubset<T, deleted_recordsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Deleted_records that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {deleted_recordsFindFirstArgs} args - Arguments to find a Deleted_records
+     * @example
+     * // Get one Deleted_records
+     * const deleted_records = await prisma.deleted_records.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends deleted_recordsFindFirstArgs>(args?: SelectSubset<T, deleted_recordsFindFirstArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Deleted_records that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {deleted_recordsFindFirstOrThrowArgs} args - Arguments to find a Deleted_records
+     * @example
+     * // Get one Deleted_records
+     * const deleted_records = await prisma.deleted_records.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends deleted_recordsFindFirstOrThrowArgs>(args?: SelectSubset<T, deleted_recordsFindFirstOrThrowArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Deleted_records that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {deleted_recordsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Deleted_records
+     * const deleted_records = await prisma.deleted_records.findMany()
+     * 
+     * // Get first 10 Deleted_records
+     * const deleted_records = await prisma.deleted_records.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const deleted_recordsWithIdOnly = await prisma.deleted_records.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends deleted_recordsFindManyArgs>(args?: SelectSubset<T, deleted_recordsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Deleted_records.
+     * @param {deleted_recordsCreateArgs} args - Arguments to create a Deleted_records.
+     * @example
+     * // Create one Deleted_records
+     * const Deleted_records = await prisma.deleted_records.create({
+     *   data: {
+     *     // ... data to create a Deleted_records
+     *   }
+     * })
+     * 
+     */
+    create<T extends deleted_recordsCreateArgs>(args: SelectSubset<T, deleted_recordsCreateArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Deleted_records.
+     * @param {deleted_recordsCreateManyArgs} args - Arguments to create many Deleted_records.
+     * @example
+     * // Create many Deleted_records
+     * const deleted_records = await prisma.deleted_records.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends deleted_recordsCreateManyArgs>(args?: SelectSubset<T, deleted_recordsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Deleted_records and returns the data saved in the database.
+     * @param {deleted_recordsCreateManyAndReturnArgs} args - Arguments to create many Deleted_records.
+     * @example
+     * // Create many Deleted_records
+     * const deleted_records = await prisma.deleted_records.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Deleted_records and only return the `id`
+     * const deleted_recordsWithIdOnly = await prisma.deleted_records.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends deleted_recordsCreateManyAndReturnArgs>(args?: SelectSubset<T, deleted_recordsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Deleted_records.
+     * @param {deleted_recordsDeleteArgs} args - Arguments to delete one Deleted_records.
+     * @example
+     * // Delete one Deleted_records
+     * const Deleted_records = await prisma.deleted_records.delete({
+     *   where: {
+     *     // ... filter to delete one Deleted_records
+     *   }
+     * })
+     * 
+     */
+    delete<T extends deleted_recordsDeleteArgs>(args: SelectSubset<T, deleted_recordsDeleteArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Deleted_records.
+     * @param {deleted_recordsUpdateArgs} args - Arguments to update one Deleted_records.
+     * @example
+     * // Update one Deleted_records
+     * const deleted_records = await prisma.deleted_records.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends deleted_recordsUpdateArgs>(args: SelectSubset<T, deleted_recordsUpdateArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Deleted_records.
+     * @param {deleted_recordsDeleteManyArgs} args - Arguments to filter Deleted_records to delete.
+     * @example
+     * // Delete a few Deleted_records
+     * const { count } = await prisma.deleted_records.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends deleted_recordsDeleteManyArgs>(args?: SelectSubset<T, deleted_recordsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Deleted_records.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {deleted_recordsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Deleted_records
+     * const deleted_records = await prisma.deleted_records.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends deleted_recordsUpdateManyArgs>(args: SelectSubset<T, deleted_recordsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Deleted_records and returns the data updated in the database.
+     * @param {deleted_recordsUpdateManyAndReturnArgs} args - Arguments to update many Deleted_records.
+     * @example
+     * // Update many Deleted_records
+     * const deleted_records = await prisma.deleted_records.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Deleted_records and only return the `id`
+     * const deleted_recordsWithIdOnly = await prisma.deleted_records.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends deleted_recordsUpdateManyAndReturnArgs>(args: SelectSubset<T, deleted_recordsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Deleted_records.
+     * @param {deleted_recordsUpsertArgs} args - Arguments to update or create a Deleted_records.
+     * @example
+     * // Update or create a Deleted_records
+     * const deleted_records = await prisma.deleted_records.upsert({
+     *   create: {
+     *     // ... data to create a Deleted_records
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Deleted_records we want to update
+     *   }
+     * })
+     */
+    upsert<T extends deleted_recordsUpsertArgs>(args: SelectSubset<T, deleted_recordsUpsertArgs<ExtArgs>>): Prisma__deleted_recordsClient<$Result.GetResult<Prisma.$deleted_recordsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Deleted_records.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {deleted_recordsCountArgs} args - Arguments to filter Deleted_records to count.
+     * @example
+     * // Count the number of Deleted_records
+     * const count = await prisma.deleted_records.count({
+     *   where: {
+     *     // ... the filter for the Deleted_records we want to count
+     *   }
+     * })
+    **/
+    count<T extends deleted_recordsCountArgs>(
+      args?: Subset<T, deleted_recordsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Deleted_recordsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Deleted_records.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Deleted_recordsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Deleted_recordsAggregateArgs>(args: Subset<T, Deleted_recordsAggregateArgs>): Prisma.PrismaPromise<GetDeleted_recordsAggregateType<T>>
+
+    /**
+     * Group by Deleted_records.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {deleted_recordsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends deleted_recordsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: deleted_recordsGroupByArgs['orderBy'] }
+        : { orderBy?: deleted_recordsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, deleted_recordsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeleted_recordsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the deleted_records model
+   */
+  readonly fields: deleted_recordsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for deleted_records.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__deleted_recordsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    users<T extends deleted_records$usersArgs<ExtArgs> = {}>(args?: Subset<T, deleted_records$usersArgs<ExtArgs>>): Prisma__usersClient<$Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the deleted_records model
+   */
+  interface deleted_recordsFieldRefs {
+    readonly id: FieldRef<"deleted_records", 'String'>
+    readonly record_id: FieldRef<"deleted_records", 'String'>
+    readonly record_type: FieldRef<"deleted_records", 'String'>
+    readonly record_data: FieldRef<"deleted_records", 'Json'>
+    readonly deleted_by: FieldRef<"deleted_records", 'String'>
+    readonly deleted_at: FieldRef<"deleted_records", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * deleted_records findUnique
+   */
+  export type deleted_recordsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * Filter, which deleted_records to fetch.
+     */
+    where: deleted_recordsWhereUniqueInput
+  }
+
+  /**
+   * deleted_records findUniqueOrThrow
+   */
+  export type deleted_recordsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * Filter, which deleted_records to fetch.
+     */
+    where: deleted_recordsWhereUniqueInput
+  }
+
+  /**
+   * deleted_records findFirst
+   */
+  export type deleted_recordsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * Filter, which deleted_records to fetch.
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of deleted_records to fetch.
+     */
+    orderBy?: deleted_recordsOrderByWithRelationInput | deleted_recordsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for deleted_records.
+     */
+    cursor?: deleted_recordsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` deleted_records from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` deleted_records.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of deleted_records.
+     */
+    distinct?: Deleted_recordsScalarFieldEnum | Deleted_recordsScalarFieldEnum[]
+  }
+
+  /**
+   * deleted_records findFirstOrThrow
+   */
+  export type deleted_recordsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * Filter, which deleted_records to fetch.
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of deleted_records to fetch.
+     */
+    orderBy?: deleted_recordsOrderByWithRelationInput | deleted_recordsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for deleted_records.
+     */
+    cursor?: deleted_recordsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` deleted_records from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` deleted_records.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of deleted_records.
+     */
+    distinct?: Deleted_recordsScalarFieldEnum | Deleted_recordsScalarFieldEnum[]
+  }
+
+  /**
+   * deleted_records findMany
+   */
+  export type deleted_recordsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * Filter, which deleted_records to fetch.
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of deleted_records to fetch.
+     */
+    orderBy?: deleted_recordsOrderByWithRelationInput | deleted_recordsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing deleted_records.
+     */
+    cursor?: deleted_recordsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` deleted_records from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` deleted_records.
+     */
+    skip?: number
+    distinct?: Deleted_recordsScalarFieldEnum | Deleted_recordsScalarFieldEnum[]
+  }
+
+  /**
+   * deleted_records create
+   */
+  export type deleted_recordsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a deleted_records.
+     */
+    data: XOR<deleted_recordsCreateInput, deleted_recordsUncheckedCreateInput>
+  }
+
+  /**
+   * deleted_records createMany
+   */
+  export type deleted_recordsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many deleted_records.
+     */
+    data: deleted_recordsCreateManyInput | deleted_recordsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * deleted_records createManyAndReturn
+   */
+  export type deleted_recordsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * The data used to create many deleted_records.
+     */
+    data: deleted_recordsCreateManyInput | deleted_recordsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * deleted_records update
+   */
+  export type deleted_recordsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a deleted_records.
+     */
+    data: XOR<deleted_recordsUpdateInput, deleted_recordsUncheckedUpdateInput>
+    /**
+     * Choose, which deleted_records to update.
+     */
+    where: deleted_recordsWhereUniqueInput
+  }
+
+  /**
+   * deleted_records updateMany
+   */
+  export type deleted_recordsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update deleted_records.
+     */
+    data: XOR<deleted_recordsUpdateManyMutationInput, deleted_recordsUncheckedUpdateManyInput>
+    /**
+     * Filter which deleted_records to update
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * Limit how many deleted_records to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * deleted_records updateManyAndReturn
+   */
+  export type deleted_recordsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * The data used to update deleted_records.
+     */
+    data: XOR<deleted_recordsUpdateManyMutationInput, deleted_recordsUncheckedUpdateManyInput>
+    /**
+     * Filter which deleted_records to update
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * Limit how many deleted_records to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * deleted_records upsert
+   */
+  export type deleted_recordsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the deleted_records to update in case it exists.
+     */
+    where: deleted_recordsWhereUniqueInput
+    /**
+     * In case the deleted_records found by the `where` argument doesn't exist, create a new deleted_records with this data.
+     */
+    create: XOR<deleted_recordsCreateInput, deleted_recordsUncheckedCreateInput>
+    /**
+     * In case the deleted_records was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<deleted_recordsUpdateInput, deleted_recordsUncheckedUpdateInput>
+  }
+
+  /**
+   * deleted_records delete
+   */
+  export type deleted_recordsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+    /**
+     * Filter which deleted_records to delete.
+     */
+    where: deleted_recordsWhereUniqueInput
+  }
+
+  /**
+   * deleted_records deleteMany
+   */
+  export type deleted_recordsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which deleted_records to delete
+     */
+    where?: deleted_recordsWhereInput
+    /**
+     * Limit how many deleted_records to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * deleted_records.users
+   */
+  export type deleted_records$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the users
+     */
+    select?: usersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the users
+     */
+    omit?: usersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: usersInclude<ExtArgs> | null
+    where?: usersWhereInput
+  }
+
+  /**
+   * deleted_records without action
+   */
+  export type deleted_recordsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the deleted_records
+     */
+    select?: deleted_recordsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the deleted_records
+     */
+    omit?: deleted_recordsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: deleted_recordsInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -30381,6 +31595,18 @@ export namespace Prisma {
   };
 
   export type TagsScalarFieldEnum = (typeof TagsScalarFieldEnum)[keyof typeof TagsScalarFieldEnum]
+
+
+  export const Deleted_recordsScalarFieldEnum: {
+    id: 'id',
+    record_id: 'record_id',
+    record_type: 'record_type',
+    record_data: 'record_data',
+    deleted_by: 'deleted_by',
+    deleted_at: 'deleted_at'
+  };
+
+  export type Deleted_recordsScalarFieldEnum = (typeof Deleted_recordsScalarFieldEnum)[keyof typeof Deleted_recordsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -31775,6 +33001,7 @@ export namespace Prisma {
     sessions?: SessionsListRelationFilter
     expenditures?: ExpendituresListRelationFilter
     invoices?: InvoicesListRelationFilter
+    deleted_records?: Deleted_recordsListRelationFilter
   }
 
   export type usersOrderByWithRelationInput = {
@@ -31819,6 +33046,7 @@ export namespace Prisma {
     sessions?: sessionsOrderByRelationAggregateInput
     expenditures?: expendituresOrderByRelationAggregateInput
     invoices?: invoicesOrderByRelationAggregateInput
+    deleted_records?: deleted_recordsOrderByRelationAggregateInput
   }
 
   export type usersWhereUniqueInput = Prisma.AtLeast<{
@@ -31866,6 +33094,7 @@ export namespace Prisma {
     sessions?: SessionsListRelationFilter
     expenditures?: ExpendituresListRelationFilter
     invoices?: InvoicesListRelationFilter
+    deleted_records?: Deleted_recordsListRelationFilter
   }, "id" | "phone">
 
   export type usersOrderByWithAggregationInput = {
@@ -32423,6 +33652,66 @@ export namespace Prisma {
     tag_id?: UuidWithAggregatesFilter<"tags"> | string
     tag_name?: StringNullableWithAggregatesFilter<"tags"> | string | null
     created_at?: DateTimeNullableWithAggregatesFilter<"tags"> | Date | string | null
+  }
+
+  export type deleted_recordsWhereInput = {
+    AND?: deleted_recordsWhereInput | deleted_recordsWhereInput[]
+    OR?: deleted_recordsWhereInput[]
+    NOT?: deleted_recordsWhereInput | deleted_recordsWhereInput[]
+    id?: UuidFilter<"deleted_records"> | string
+    record_id?: StringFilter<"deleted_records"> | string
+    record_type?: StringFilter<"deleted_records"> | string
+    record_data?: JsonFilter<"deleted_records">
+    deleted_by?: UuidNullableFilter<"deleted_records"> | string | null
+    deleted_at?: DateTimeFilter<"deleted_records"> | Date | string
+    users?: XOR<UsersNullableScalarRelationFilter, usersWhereInput> | null
+  }
+
+  export type deleted_recordsOrderByWithRelationInput = {
+    id?: SortOrder
+    record_id?: SortOrder
+    record_type?: SortOrder
+    record_data?: SortOrder
+    deleted_by?: SortOrderInput | SortOrder
+    deleted_at?: SortOrder
+    users?: usersOrderByWithRelationInput
+  }
+
+  export type deleted_recordsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: deleted_recordsWhereInput | deleted_recordsWhereInput[]
+    OR?: deleted_recordsWhereInput[]
+    NOT?: deleted_recordsWhereInput | deleted_recordsWhereInput[]
+    record_id?: StringFilter<"deleted_records"> | string
+    record_type?: StringFilter<"deleted_records"> | string
+    record_data?: JsonFilter<"deleted_records">
+    deleted_by?: UuidNullableFilter<"deleted_records"> | string | null
+    deleted_at?: DateTimeFilter<"deleted_records"> | Date | string
+    users?: XOR<UsersNullableScalarRelationFilter, usersWhereInput> | null
+  }, "id">
+
+  export type deleted_recordsOrderByWithAggregationInput = {
+    id?: SortOrder
+    record_id?: SortOrder
+    record_type?: SortOrder
+    record_data?: SortOrder
+    deleted_by?: SortOrderInput | SortOrder
+    deleted_at?: SortOrder
+    _count?: deleted_recordsCountOrderByAggregateInput
+    _max?: deleted_recordsMaxOrderByAggregateInput
+    _min?: deleted_recordsMinOrderByAggregateInput
+  }
+
+  export type deleted_recordsScalarWhereWithAggregatesInput = {
+    AND?: deleted_recordsScalarWhereWithAggregatesInput | deleted_recordsScalarWhereWithAggregatesInput[]
+    OR?: deleted_recordsScalarWhereWithAggregatesInput[]
+    NOT?: deleted_recordsScalarWhereWithAggregatesInput | deleted_recordsScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"deleted_records"> | string
+    record_id?: StringWithAggregatesFilter<"deleted_records"> | string
+    record_type?: StringWithAggregatesFilter<"deleted_records"> | string
+    record_data?: JsonWithAggregatesFilter<"deleted_records">
+    deleted_by?: UuidNullableWithAggregatesFilter<"deleted_records"> | string | null
+    deleted_at?: DateTimeWithAggregatesFilter<"deleted_records"> | Date | string
   }
 
   export type audit_log_entriesCreateInput = {
@@ -33674,6 +34963,7 @@ export namespace Prisma {
     sessions?: sessionsCreateNestedManyWithoutUsersInput
     expenditures?: expendituresCreateNestedManyWithoutUsersInput
     invoices?: invoicesCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateInput = {
@@ -33718,6 +35008,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
     expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
     invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersUpdateInput = {
@@ -33762,6 +35053,7 @@ export namespace Prisma {
     sessions?: sessionsUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateInput = {
@@ -33806,6 +35098,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type usersCreateManyInput = {
@@ -34433,6 +35726,68 @@ export namespace Prisma {
     tag_id?: StringFieldUpdateOperationsInput | string
     tag_name?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type deleted_recordsCreateInput = {
+    id?: string
+    record_id: string
+    record_type: string
+    record_data: JsonNullValueInput | InputJsonValue
+    deleted_at?: Date | string
+    users?: usersCreateNestedOneWithoutDeleted_recordsInput
+  }
+
+  export type deleted_recordsUncheckedCreateInput = {
+    id?: string
+    record_id: string
+    record_type: string
+    record_data: JsonNullValueInput | InputJsonValue
+    deleted_by?: string | null
+    deleted_at?: Date | string
+  }
+
+  export type deleted_recordsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: usersUpdateOneWithoutDeleted_recordsNestedInput
+  }
+
+  export type deleted_recordsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_by?: NullableStringFieldUpdateOperationsInput | string | null
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type deleted_recordsCreateManyInput = {
+    id?: string
+    record_id: string
+    record_type: string
+    record_data: JsonNullValueInput | InputJsonValue
+    deleted_by?: string | null
+    deleted_at?: Date | string
+  }
+
+  export type deleted_recordsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type deleted_recordsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_by?: NullableStringFieldUpdateOperationsInput | string | null
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UuidNullableFilter<$PrismaModel = never> = {
@@ -35520,6 +36875,12 @@ export namespace Prisma {
     none?: invoicesWhereInput
   }
 
+  export type Deleted_recordsListRelationFilter = {
+    every?: deleted_recordsWhereInput
+    some?: deleted_recordsWhereInput
+    none?: deleted_recordsWhereInput
+  }
+
   export type identitiesOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -35541,6 +36902,10 @@ export namespace Prisma {
   }
 
   export type invoicesOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type deleted_recordsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -35993,6 +37358,31 @@ export namespace Prisma {
     tag_id?: SortOrder
     tag_name?: SortOrder
     created_at?: SortOrder
+  }
+
+  export type deleted_recordsCountOrderByAggregateInput = {
+    id?: SortOrder
+    record_id?: SortOrder
+    record_type?: SortOrder
+    record_data?: SortOrder
+    deleted_by?: SortOrder
+    deleted_at?: SortOrder
+  }
+
+  export type deleted_recordsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    record_id?: SortOrder
+    record_type?: SortOrder
+    deleted_by?: SortOrder
+    deleted_at?: SortOrder
+  }
+
+  export type deleted_recordsMinOrderByAggregateInput = {
+    id?: SortOrder
+    record_id?: SortOrder
+    record_type?: SortOrder
+    deleted_by?: SortOrder
+    deleted_at?: SortOrder
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -36541,6 +37931,13 @@ export namespace Prisma {
     connect?: invoicesWhereUniqueInput | invoicesWhereUniqueInput[]
   }
 
+  export type deleted_recordsCreateNestedManyWithoutUsersInput = {
+    create?: XOR<deleted_recordsCreateWithoutUsersInput, deleted_recordsUncheckedCreateWithoutUsersInput> | deleted_recordsCreateWithoutUsersInput[] | deleted_recordsUncheckedCreateWithoutUsersInput[]
+    connectOrCreate?: deleted_recordsCreateOrConnectWithoutUsersInput | deleted_recordsCreateOrConnectWithoutUsersInput[]
+    createMany?: deleted_recordsCreateManyUsersInputEnvelope
+    connect?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+  }
+
   export type identitiesUncheckedCreateNestedManyWithoutUsersInput = {
     create?: XOR<identitiesCreateWithoutUsersInput, identitiesUncheckedCreateWithoutUsersInput> | identitiesCreateWithoutUsersInput[] | identitiesUncheckedCreateWithoutUsersInput[]
     connectOrCreate?: identitiesCreateOrConnectWithoutUsersInput | identitiesCreateOrConnectWithoutUsersInput[]
@@ -36581,6 +37978,13 @@ export namespace Prisma {
     connectOrCreate?: invoicesCreateOrConnectWithoutUsersInput | invoicesCreateOrConnectWithoutUsersInput[]
     createMany?: invoicesCreateManyUsersInputEnvelope
     connect?: invoicesWhereUniqueInput | invoicesWhereUniqueInput[]
+  }
+
+  export type deleted_recordsUncheckedCreateNestedManyWithoutUsersInput = {
+    create?: XOR<deleted_recordsCreateWithoutUsersInput, deleted_recordsUncheckedCreateWithoutUsersInput> | deleted_recordsCreateWithoutUsersInput[] | deleted_recordsUncheckedCreateWithoutUsersInput[]
+    connectOrCreate?: deleted_recordsCreateOrConnectWithoutUsersInput | deleted_recordsCreateOrConnectWithoutUsersInput[]
+    createMany?: deleted_recordsCreateManyUsersInputEnvelope
+    connect?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -36679,6 +38083,20 @@ export namespace Prisma {
     deleteMany?: invoicesScalarWhereInput | invoicesScalarWhereInput[]
   }
 
+  export type deleted_recordsUpdateManyWithoutUsersNestedInput = {
+    create?: XOR<deleted_recordsCreateWithoutUsersInput, deleted_recordsUncheckedCreateWithoutUsersInput> | deleted_recordsCreateWithoutUsersInput[] | deleted_recordsUncheckedCreateWithoutUsersInput[]
+    connectOrCreate?: deleted_recordsCreateOrConnectWithoutUsersInput | deleted_recordsCreateOrConnectWithoutUsersInput[]
+    upsert?: deleted_recordsUpsertWithWhereUniqueWithoutUsersInput | deleted_recordsUpsertWithWhereUniqueWithoutUsersInput[]
+    createMany?: deleted_recordsCreateManyUsersInputEnvelope
+    set?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    disconnect?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    delete?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    connect?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    update?: deleted_recordsUpdateWithWhereUniqueWithoutUsersInput | deleted_recordsUpdateWithWhereUniqueWithoutUsersInput[]
+    updateMany?: deleted_recordsUpdateManyWithWhereWithoutUsersInput | deleted_recordsUpdateManyWithWhereWithoutUsersInput[]
+    deleteMany?: deleted_recordsScalarWhereInput | deleted_recordsScalarWhereInput[]
+  }
+
   export type identitiesUncheckedUpdateManyWithoutUsersNestedInput = {
     create?: XOR<identitiesCreateWithoutUsersInput, identitiesUncheckedCreateWithoutUsersInput> | identitiesCreateWithoutUsersInput[] | identitiesUncheckedCreateWithoutUsersInput[]
     connectOrCreate?: identitiesCreateOrConnectWithoutUsersInput | identitiesCreateOrConnectWithoutUsersInput[]
@@ -36761,6 +38179,20 @@ export namespace Prisma {
     update?: invoicesUpdateWithWhereUniqueWithoutUsersInput | invoicesUpdateWithWhereUniqueWithoutUsersInput[]
     updateMany?: invoicesUpdateManyWithWhereWithoutUsersInput | invoicesUpdateManyWithWhereWithoutUsersInput[]
     deleteMany?: invoicesScalarWhereInput | invoicesScalarWhereInput[]
+  }
+
+  export type deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput = {
+    create?: XOR<deleted_recordsCreateWithoutUsersInput, deleted_recordsUncheckedCreateWithoutUsersInput> | deleted_recordsCreateWithoutUsersInput[] | deleted_recordsUncheckedCreateWithoutUsersInput[]
+    connectOrCreate?: deleted_recordsCreateOrConnectWithoutUsersInput | deleted_recordsCreateOrConnectWithoutUsersInput[]
+    upsert?: deleted_recordsUpsertWithWhereUniqueWithoutUsersInput | deleted_recordsUpsertWithWhereUniqueWithoutUsersInput[]
+    createMany?: deleted_recordsCreateManyUsersInputEnvelope
+    set?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    disconnect?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    delete?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    connect?: deleted_recordsWhereUniqueInput | deleted_recordsWhereUniqueInput[]
+    update?: deleted_recordsUpdateWithWhereUniqueWithoutUsersInput | deleted_recordsUpdateWithWhereUniqueWithoutUsersInput[]
+    updateMany?: deleted_recordsUpdateManyWithWhereWithoutUsersInput | deleted_recordsUpdateManyWithWhereWithoutUsersInput[]
+    deleteMany?: deleted_recordsScalarWhereInput | deleted_recordsScalarWhereInput[]
   }
 
   export type tagsCreateNestedOneWithoutExpendituresInput = {
@@ -36925,6 +38357,22 @@ export namespace Prisma {
     update?: invoicesUpdateWithWhereUniqueWithoutTagsInput | invoicesUpdateWithWhereUniqueWithoutTagsInput[]
     updateMany?: invoicesUpdateManyWithWhereWithoutTagsInput | invoicesUpdateManyWithWhereWithoutTagsInput[]
     deleteMany?: invoicesScalarWhereInput | invoicesScalarWhereInput[]
+  }
+
+  export type usersCreateNestedOneWithoutDeleted_recordsInput = {
+    create?: XOR<usersCreateWithoutDeleted_recordsInput, usersUncheckedCreateWithoutDeleted_recordsInput>
+    connectOrCreate?: usersCreateOrConnectWithoutDeleted_recordsInput
+    connect?: usersWhereUniqueInput
+  }
+
+  export type usersUpdateOneWithoutDeleted_recordsNestedInput = {
+    create?: XOR<usersCreateWithoutDeleted_recordsInput, usersUncheckedCreateWithoutDeleted_recordsInput>
+    connectOrCreate?: usersCreateOrConnectWithoutDeleted_recordsInput
+    upsert?: usersUpsertWithoutDeleted_recordsInput
+    disconnect?: usersWhereInput | boolean
+    delete?: usersWhereInput | boolean
+    connect?: usersWhereUniqueInput
+    update?: XOR<XOR<usersUpdateToOneWithWhereWithoutDeleted_recordsInput, usersUpdateWithoutDeleted_recordsInput>, usersUncheckedUpdateWithoutDeleted_recordsInput>
   }
 
   export type NestedUuidNullableFilter<$PrismaModel = never> = {
@@ -37494,6 +38942,7 @@ export namespace Prisma {
     sessions?: sessionsCreateNestedManyWithoutUsersInput
     expenditures?: expendituresCreateNestedManyWithoutUsersInput
     invoices?: invoicesCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutIdentitiesInput = {
@@ -37537,6 +38986,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
     expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
     invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutIdentitiesInput = {
@@ -37596,6 +39046,7 @@ export namespace Prisma {
     sessions?: sessionsUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutIdentitiesInput = {
@@ -37639,6 +39090,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type sessionsCreateWithoutMfa_amr_claimsInput = {
@@ -37862,6 +39314,7 @@ export namespace Prisma {
     sessions?: sessionsCreateNestedManyWithoutUsersInput
     expenditures?: expendituresCreateNestedManyWithoutUsersInput
     invoices?: invoicesCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutMfa_factorsInput = {
@@ -37905,6 +39358,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
     expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
     invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutMfa_factorsInput = {
@@ -37993,6 +39447,7 @@ export namespace Prisma {
     sessions?: sessionsUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutMfa_factorsInput = {
@@ -38036,6 +39491,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type usersCreateWithoutOne_time_tokensInput = {
@@ -38079,6 +39535,7 @@ export namespace Prisma {
     sessions?: sessionsCreateNestedManyWithoutUsersInput
     expenditures?: expendituresCreateNestedManyWithoutUsersInput
     invoices?: invoicesCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutOne_time_tokensInput = {
@@ -38122,6 +39579,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
     expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
     invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutOne_time_tokensInput = {
@@ -38181,6 +39639,7 @@ export namespace Prisma {
     sessions?: sessionsUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutOne_time_tokensInput = {
@@ -38224,6 +39683,7 @@ export namespace Prisma {
     sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type sessionsCreateWithoutRefresh_tokensInput = {
@@ -38587,6 +40047,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensCreateNestedManyWithoutUsersInput
     expenditures?: expendituresCreateNestedManyWithoutUsersInput
     invoices?: invoicesCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutSessionsInput = {
@@ -38630,6 +40091,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUncheckedCreateNestedManyWithoutUsersInput
     expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
     invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutSessionsInput = {
@@ -38747,6 +40209,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutSessionsInput = {
@@ -38790,6 +40253,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUncheckedUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type sso_providersCreateWithoutSso_domainsInput = {
@@ -39234,6 +40698,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type deleted_recordsCreateWithoutUsersInput = {
+    id?: string
+    record_id: string
+    record_type: string
+    record_data: JsonNullValueInput | InputJsonValue
+    deleted_at?: Date | string
+  }
+
+  export type deleted_recordsUncheckedCreateWithoutUsersInput = {
+    id?: string
+    record_id: string
+    record_type: string
+    record_data: JsonNullValueInput | InputJsonValue
+    deleted_at?: Date | string
+  }
+
+  export type deleted_recordsCreateOrConnectWithoutUsersInput = {
+    where: deleted_recordsWhereUniqueInput
+    create: XOR<deleted_recordsCreateWithoutUsersInput, deleted_recordsUncheckedCreateWithoutUsersInput>
+  }
+
+  export type deleted_recordsCreateManyUsersInputEnvelope = {
+    data: deleted_recordsCreateManyUsersInput | deleted_recordsCreateManyUsersInput[]
+    skipDuplicates?: boolean
+  }
+
   export type identitiesUpsertWithWhereUniqueWithoutUsersInput = {
     where: identitiesWhereUniqueInput
     update: XOR<identitiesUpdateWithoutUsersInput, identitiesUncheckedUpdateWithoutUsersInput>
@@ -39434,6 +40924,34 @@ export namespace Prisma {
     actual_amt_credit_dt?: DateTimeNullableFilter<"invoices"> | Date | string | null
   }
 
+  export type deleted_recordsUpsertWithWhereUniqueWithoutUsersInput = {
+    where: deleted_recordsWhereUniqueInput
+    update: XOR<deleted_recordsUpdateWithoutUsersInput, deleted_recordsUncheckedUpdateWithoutUsersInput>
+    create: XOR<deleted_recordsCreateWithoutUsersInput, deleted_recordsUncheckedCreateWithoutUsersInput>
+  }
+
+  export type deleted_recordsUpdateWithWhereUniqueWithoutUsersInput = {
+    where: deleted_recordsWhereUniqueInput
+    data: XOR<deleted_recordsUpdateWithoutUsersInput, deleted_recordsUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type deleted_recordsUpdateManyWithWhereWithoutUsersInput = {
+    where: deleted_recordsScalarWhereInput
+    data: XOR<deleted_recordsUpdateManyMutationInput, deleted_recordsUncheckedUpdateManyWithoutUsersInput>
+  }
+
+  export type deleted_recordsScalarWhereInput = {
+    AND?: deleted_recordsScalarWhereInput | deleted_recordsScalarWhereInput[]
+    OR?: deleted_recordsScalarWhereInput[]
+    NOT?: deleted_recordsScalarWhereInput | deleted_recordsScalarWhereInput[]
+    id?: UuidFilter<"deleted_records"> | string
+    record_id?: StringFilter<"deleted_records"> | string
+    record_type?: StringFilter<"deleted_records"> | string
+    record_data?: JsonFilter<"deleted_records">
+    deleted_by?: UuidNullableFilter<"deleted_records"> | string | null
+    deleted_at?: DateTimeFilter<"deleted_records"> | Date | string
+  }
+
   export type tagsCreateWithoutExpendituresInput = {
     tag_id?: string
     tag_name?: string | null
@@ -39494,6 +41012,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensCreateNestedManyWithoutUsersInput
     sessions?: sessionsCreateNestedManyWithoutUsersInput
     invoices?: invoicesCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutExpendituresInput = {
@@ -39537,6 +41056,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUncheckedCreateNestedManyWithoutUsersInput
     sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
     invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutExpendituresInput = {
@@ -39621,6 +41141,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUpdateManyWithoutUsersNestedInput
     sessions?: sessionsUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutExpendituresInput = {
@@ -39664,6 +41185,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUncheckedUpdateManyWithoutUsersNestedInput
     sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
     invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type tagsCreateWithoutInvoicesInput = {
@@ -39726,6 +41248,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensCreateNestedManyWithoutUsersInput
     sessions?: sessionsCreateNestedManyWithoutUsersInput
     expenditures?: expendituresCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsCreateNestedManyWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutInvoicesInput = {
@@ -39769,6 +41292,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUncheckedCreateNestedManyWithoutUsersInput
     sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
     expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
+    deleted_records?: deleted_recordsUncheckedCreateNestedManyWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutInvoicesInput = {
@@ -39853,6 +41377,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUpdateManyWithoutUsersNestedInput
     sessions?: sessionsUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUpdateManyWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutInvoicesInput = {
@@ -39896,6 +41421,7 @@ export namespace Prisma {
     one_time_tokens?: one_time_tokensUncheckedUpdateManyWithoutUsersNestedInput
     sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
     expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
+    deleted_records?: deleted_recordsUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type expendituresCreateWithoutTagsInput = {
@@ -40014,6 +41540,198 @@ export namespace Prisma {
   export type invoicesUpdateManyWithWhereWithoutTagsInput = {
     where: invoicesScalarWhereInput
     data: XOR<invoicesUpdateManyMutationInput, invoicesUncheckedUpdateManyWithoutTagsInput>
+  }
+
+  export type usersCreateWithoutDeleted_recordsInput = {
+    instance_id?: string | null
+    id: string
+    aud?: string | null
+    role?: string | null
+    email?: string | null
+    encrypted_password?: string | null
+    email_confirmed_at?: Date | string | null
+    invited_at?: Date | string | null
+    confirmation_token?: string | null
+    confirmation_sent_at?: Date | string | null
+    recovery_token?: string | null
+    recovery_sent_at?: Date | string | null
+    email_change_token_new?: string | null
+    email_change?: string | null
+    email_change_sent_at?: Date | string | null
+    last_sign_in_at?: Date | string | null
+    raw_app_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    raw_user_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    is_super_admin?: boolean | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    phone?: string | null
+    phone_confirmed_at?: Date | string | null
+    phone_change?: string | null
+    phone_change_token?: string | null
+    phone_change_sent_at?: Date | string | null
+    confirmed_at?: Date | string | null
+    email_change_token_current?: string | null
+    email_change_confirm_status?: number | null
+    banned_until?: Date | string | null
+    reauthentication_token?: string | null
+    reauthentication_sent_at?: Date | string | null
+    is_sso_user?: boolean
+    deleted_at?: Date | string | null
+    is_anonymous?: boolean
+    identities?: identitiesCreateNestedManyWithoutUsersInput
+    mfa_factors?: mfa_factorsCreateNestedManyWithoutUsersInput
+    one_time_tokens?: one_time_tokensCreateNestedManyWithoutUsersInput
+    sessions?: sessionsCreateNestedManyWithoutUsersInput
+    expenditures?: expendituresCreateNestedManyWithoutUsersInput
+    invoices?: invoicesCreateNestedManyWithoutUsersInput
+  }
+
+  export type usersUncheckedCreateWithoutDeleted_recordsInput = {
+    instance_id?: string | null
+    id: string
+    aud?: string | null
+    role?: string | null
+    email?: string | null
+    encrypted_password?: string | null
+    email_confirmed_at?: Date | string | null
+    invited_at?: Date | string | null
+    confirmation_token?: string | null
+    confirmation_sent_at?: Date | string | null
+    recovery_token?: string | null
+    recovery_sent_at?: Date | string | null
+    email_change_token_new?: string | null
+    email_change?: string | null
+    email_change_sent_at?: Date | string | null
+    last_sign_in_at?: Date | string | null
+    raw_app_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    raw_user_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    is_super_admin?: boolean | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    phone?: string | null
+    phone_confirmed_at?: Date | string | null
+    phone_change?: string | null
+    phone_change_token?: string | null
+    phone_change_sent_at?: Date | string | null
+    confirmed_at?: Date | string | null
+    email_change_token_current?: string | null
+    email_change_confirm_status?: number | null
+    banned_until?: Date | string | null
+    reauthentication_token?: string | null
+    reauthentication_sent_at?: Date | string | null
+    is_sso_user?: boolean
+    deleted_at?: Date | string | null
+    is_anonymous?: boolean
+    identities?: identitiesUncheckedCreateNestedManyWithoutUsersInput
+    mfa_factors?: mfa_factorsUncheckedCreateNestedManyWithoutUsersInput
+    one_time_tokens?: one_time_tokensUncheckedCreateNestedManyWithoutUsersInput
+    sessions?: sessionsUncheckedCreateNestedManyWithoutUsersInput
+    expenditures?: expendituresUncheckedCreateNestedManyWithoutUsersInput
+    invoices?: invoicesUncheckedCreateNestedManyWithoutUsersInput
+  }
+
+  export type usersCreateOrConnectWithoutDeleted_recordsInput = {
+    where: usersWhereUniqueInput
+    create: XOR<usersCreateWithoutDeleted_recordsInput, usersUncheckedCreateWithoutDeleted_recordsInput>
+  }
+
+  export type usersUpsertWithoutDeleted_recordsInput = {
+    update: XOR<usersUpdateWithoutDeleted_recordsInput, usersUncheckedUpdateWithoutDeleted_recordsInput>
+    create: XOR<usersCreateWithoutDeleted_recordsInput, usersUncheckedCreateWithoutDeleted_recordsInput>
+    where?: usersWhereInput
+  }
+
+  export type usersUpdateToOneWithWhereWithoutDeleted_recordsInput = {
+    where?: usersWhereInput
+    data: XOR<usersUpdateWithoutDeleted_recordsInput, usersUncheckedUpdateWithoutDeleted_recordsInput>
+  }
+
+  export type usersUpdateWithoutDeleted_recordsInput = {
+    instance_id?: NullableStringFieldUpdateOperationsInput | string | null
+    id?: StringFieldUpdateOperationsInput | string
+    aud?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    encrypted_password?: NullableStringFieldUpdateOperationsInput | string | null
+    email_confirmed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invited_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    confirmation_token?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmation_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recovery_token?: NullableStringFieldUpdateOperationsInput | string | null
+    recovery_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email_change_token_new?: NullableStringFieldUpdateOperationsInput | string | null
+    email_change?: NullableStringFieldUpdateOperationsInput | string | null
+    email_change_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_sign_in_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    raw_app_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    raw_user_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    is_super_admin?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_confirmed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_change?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_change_token?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_change_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    confirmed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email_change_token_current?: NullableStringFieldUpdateOperationsInput | string | null
+    email_change_confirm_status?: NullableIntFieldUpdateOperationsInput | number | null
+    banned_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reauthentication_token?: NullableStringFieldUpdateOperationsInput | string | null
+    reauthentication_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_sso_user?: BoolFieldUpdateOperationsInput | boolean
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_anonymous?: BoolFieldUpdateOperationsInput | boolean
+    identities?: identitiesUpdateManyWithoutUsersNestedInput
+    mfa_factors?: mfa_factorsUpdateManyWithoutUsersNestedInput
+    one_time_tokens?: one_time_tokensUpdateManyWithoutUsersNestedInput
+    sessions?: sessionsUpdateManyWithoutUsersNestedInput
+    expenditures?: expendituresUpdateManyWithoutUsersNestedInput
+    invoices?: invoicesUpdateManyWithoutUsersNestedInput
+  }
+
+  export type usersUncheckedUpdateWithoutDeleted_recordsInput = {
+    instance_id?: NullableStringFieldUpdateOperationsInput | string | null
+    id?: StringFieldUpdateOperationsInput | string
+    aud?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    encrypted_password?: NullableStringFieldUpdateOperationsInput | string | null
+    email_confirmed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invited_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    confirmation_token?: NullableStringFieldUpdateOperationsInput | string | null
+    confirmation_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recovery_token?: NullableStringFieldUpdateOperationsInput | string | null
+    recovery_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email_change_token_new?: NullableStringFieldUpdateOperationsInput | string | null
+    email_change?: NullableStringFieldUpdateOperationsInput | string | null
+    email_change_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    last_sign_in_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    raw_app_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    raw_user_meta_data?: NullableJsonNullValueInput | InputJsonValue
+    is_super_admin?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_confirmed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phone_change?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_change_token?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_change_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    confirmed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    email_change_token_current?: NullableStringFieldUpdateOperationsInput | string | null
+    email_change_confirm_status?: NullableIntFieldUpdateOperationsInput | number | null
+    banned_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reauthentication_token?: NullableStringFieldUpdateOperationsInput | string | null
+    reauthentication_sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_sso_user?: BoolFieldUpdateOperationsInput | boolean
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_anonymous?: BoolFieldUpdateOperationsInput | boolean
+    identities?: identitiesUncheckedUpdateManyWithoutUsersNestedInput
+    mfa_factors?: mfa_factorsUncheckedUpdateManyWithoutUsersNestedInput
+    one_time_tokens?: one_time_tokensUncheckedUpdateManyWithoutUsersNestedInput
+    sessions?: sessionsUncheckedUpdateManyWithoutUsersNestedInput
+    expenditures?: expendituresUncheckedUpdateManyWithoutUsersNestedInput
+    invoices?: invoicesUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type saml_relay_statesCreateManyFlow_stateInput = {
@@ -40356,6 +42074,14 @@ export namespace Prisma {
     actual_amt_credit_dt?: Date | string | null
   }
 
+  export type deleted_recordsCreateManyUsersInput = {
+    id?: string
+    record_id: string
+    record_type: string
+    record_data: JsonNullValueInput | InputJsonValue
+    deleted_at?: Date | string
+  }
+
   export type identitiesUpdateWithoutUsersInput = {
     provider_id?: StringFieldUpdateOperationsInput | string
     identity_data?: JsonNullValueInput | InputJsonValue
@@ -40599,6 +42325,30 @@ export namespace Prisma {
     date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id_short?: IntFieldUpdateOperationsInput | number
     actual_amt_credit_dt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type deleted_recordsUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type deleted_recordsUncheckedUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type deleted_recordsUncheckedUpdateManyWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    record_id?: StringFieldUpdateOperationsInput | string
+    record_type?: StringFieldUpdateOperationsInput | string
+    record_data?: JsonNullValueInput | InputJsonValue
+    deleted_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type expendituresCreateManyTagsInput = {

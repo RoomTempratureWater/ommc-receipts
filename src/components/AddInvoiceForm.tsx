@@ -176,6 +176,8 @@ export default function AddInvoiceForm() {
       
       const [toYear, toMonth] = toDate.split('-');
       finalEffectiveTo = new Date(Date.UTC(Number(toYear), Number(toMonth), 0));
+    } else {
+      finalEffectiveFrom = new Date(date);
     }
 
     const invoiceData = {
@@ -232,7 +234,7 @@ export default function AddInvoiceForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
+    <div className="w-full max-w-2xl mx-auto space-y-4">
       <h2 className="text-xl font-semibold text-center">Add Invoice</h2>
 
       <div>

@@ -343,6 +343,7 @@ model users {
   sessions                    sessions[]
   expenditures                expenditures[]
   invoices                    invoices[]
+  deleted_records             deleted_records[]
 
   @@index([instance_id])
   @@index([is_anonymous])
@@ -442,6 +443,18 @@ model tags {
   created_at   DateTime?      @default(now()) @db.Timestamptz(6)
   expenditures expenditures[]
   invoices     invoices[]
+
+  @@schema("public")
+}
+
+model deleted_records {
+  id          String   @id @default(dbgenerated("extensions.uuid_generate_v4()")) @db.Uuid
+  record_id   String   @db.VarChar
+  record_type String   @db.VarChar
+  record_data Json     @db.Json
+  deleted_by  String?  @db.Uuid
+  deleted_at  DateTime @default(now()) @db.Timestamptz(6)
+  users       users?   @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }

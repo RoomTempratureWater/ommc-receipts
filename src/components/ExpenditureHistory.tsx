@@ -56,6 +56,11 @@ export default function ExpenditureHistory() {
   const [paymentRefFilter, setPaymentRefFilter] = useState('')
   const [showPendingCheques, setShowPendingCheques] = useState(false)
   const [filterEmail, setFilterEmail] = useState('')
+  const [filterId, setFilterId] = useState('')
+  const [filterTitle, setFilterTitle] = useState('')
+  const [filterPaymentType, setFilterPaymentType] = useState('__all__')
+  const [filterMinAmount, setFilterMinAmount] = useState('')
+  const [filterMaxAmount, setFilterMaxAmount] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -83,6 +88,11 @@ export default function ExpenditureHistory() {
         if (paymentRefFilter) params.append('paymentRef', paymentRefFilter)
         if (showPendingCheques) params.append('onlyPendingCredit', 'true')
         if (filterEmail.trim()) params.append('email', filterEmail.trim())
+        if (filterId.trim()) params.append('id', filterId.trim())
+        if (filterTitle.trim()) params.append('title', filterTitle.trim())
+        if (filterPaymentType && filterPaymentType !== '__all__') params.append('paymentType', filterPaymentType)
+        if (filterMinAmount.trim()) params.append('minAmount', filterMinAmount.trim())
+        if (filterMaxAmount.trim()) params.append('maxAmount', filterMaxAmount.trim())
 
         const response = await fetch(`/api/expenditures?${params.toString()}`)
         if (!response.ok) throw new Error('Failed to fetch expenditures')
@@ -102,7 +112,7 @@ export default function ExpenditureHistory() {
     }
 
     fetchExpenditures()
-  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail])
+  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail, filterId, filterTitle, filterPaymentType, filterMinAmount, filterMaxAmount])
 
   const toggleTag = (tagId: string) => {
     const updated = selectedTags.includes(tagId)
@@ -183,10 +193,28 @@ export default function ExpenditureHistory() {
     document.body.removeChild(link)
   }
 
+  const handleResetFilters = () => {
+    const d = new Date()
+    d.setMonth(d.getMonth() - 1)
+    setStartDate(d.toISOString().split('T')[0])
+    setEndDate(new Date().toISOString().split('T')[0])
+    setPaymentRefFilter('')
+    setShowPendingCheques(false)
+    setFilterEmail('')
+    setFilterId('')
+    setFilterTitle('')
+    setFilterPaymentType('__all__')
+    setFilterMinAmount('')
+    setFilterMaxAmount('')
+    setSelectedTags(tags.map(t => t.tag_id))
+    setAllSelected(true)
+  }
+
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center gap-4 justify-center">
         <h2 className="text-2xl font-semibold text-center">Expenditure History</h2>
+        <Button variant="outline" size="sm" onClick={handleResetFilters}>Reset Filters</Button>
         <Button variant="outline" size="sm" onClick={handleExportCSV}>Export CSV</Button>
       </div>
 
@@ -207,6 +235,37 @@ export default function ExpenditureHistory() {
         <div>
           <Label>Creator Email</Label>
           <Input value={filterEmail} onChange={e => setFilterEmail(e.target.value)} placeholder="Search by email" />
+        </div>
+        <div>
+          <Label>Expense ID</Label>
+          <Input value={filterId} onChange={e => setFilterId(e.target.value)} placeholder="Search ID" className="w-24" />
+        </div>
+        <div>
+          <Label>Title</Label>
+          <Input value={filterTitle} onChange={e => setFilterTitle(e.target.value)} placeholder="Search title" />
+        </div>
+        <div>
+          <Label>Payment Type</Label>
+          <select 
+            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            value={filterPaymentType}
+            onChange={e => setFilterPaymentType(e.target.value)}
+          >
+            <option value="__all__">All</option>
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+            <option value="bank">Bank</option>
+            <option value="cheque">Cheque</option>
+            <option value="card">Card</option>
+          </select>
+        </div>
+        <div>
+          <Label>Min Amount (₹)</Label>
+          <Input type="number" value={filterMinAmount} onChange={e => setFilterMinAmount(e.target.value)} placeholder="0" className="w-32" />
+        </div>
+        <div>
+          <Label>Max Amount (₹)</Label>
+          <Input type="number" value={filterMaxAmount} onChange={e => setFilterMaxAmount(e.target.value)} placeholder="9999" className="w-32" />
         </div>
         <div className="flex items-center gap-1">
           <Checkbox checked={showPendingCheques} onCheckedChange={checked => setShowPendingCheques(Boolean(checked))} />
@@ -235,7 +294,7 @@ export default function ExpenditureHistory() {
       </div>
 
       {/* Table */}
-      <div className="overflow-auto border rounded-md max-h-[600px]">
+      <div className="overflow-auto border rounded-md" style={{ height: 'calc(100vh - 250px)' }}>
         <table className="min-w-full border-collapse table-auto text-sm">
           <thead className="sticky top-0 bg-muted z-10">
             <tr>

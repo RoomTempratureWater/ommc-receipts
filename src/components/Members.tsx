@@ -135,6 +135,24 @@ export default function MembersList() {
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this member?')) return
+
+    try {
+      const response = await fetch(`/api/members/${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) throw new Error('Failed to delete member')
+      
+      setMembers(prev => prev.filter(m => m.id !== id))
+      setFiltered(prev => prev.filter(m => m.id !== id))
+    } catch (error) {
+      console.error('Error deleting member:', error)
+      alert('Error deleting member.')
+    }
+  }
+
   const downloadCSV = () => {
     const headers = ['Name', 'Phone', 'Address']
     const rows = filtered.map(m => [`${m.first_name} ${m.middle_name ? m.middle_name + ' ' : ''}${m.last_name}`, m.phone, m.address])
@@ -154,7 +172,7 @@ export default function MembersList() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <h2 className="text-2xl font-semibold text-center">Members</h2>
 
       {/* Add New Member Form */}
@@ -219,9 +237,9 @@ export default function MembersList() {
       </div>
 
       {/* Members Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border text-sm">
-          <thead>
+      <div className="overflow-auto border rounded-md" style={{ height: 'calc(100vh - 300px)' }}>
+        <table className="w-full border-collapse text-sm">
+          <thead className="sticky top-0 bg-muted z-10">
             <tr className="bg-muted text-left">
               <th className="p-2 border">Name</th>
               <th className="p-2 border">Phone</th>
@@ -262,7 +280,7 @@ export default function MembersList() {
                       <td className="p-2 border">{member.first_name} {member.middle_name ? member.middle_name + ' ' : ''}{member.last_name}</td>
                       <td className="p-2 border">{member.phone}</td>
                       <td className="p-2 border">{member.address}</td>
-                      <td className="p-2 border text-center">
+                      <td className="p-2 border text-center space-x-2">
                         <Button
                           variant="secondary"
                           size="sm"
@@ -272,6 +290,13 @@ export default function MembersList() {
                           }}
                         >
                           Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(member.id)}
+                        >
+                          Delete
                         </Button>
                       </td>
                     </>

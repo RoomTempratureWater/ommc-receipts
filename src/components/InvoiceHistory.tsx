@@ -82,6 +82,13 @@ export default function InvoiceHistory() {
   const [onlyPendingCredit, setOnlyPendingCredit] = useState(false)
   const [filterEmail, setFilterEmail] = useState('')
 
+  // New filters
+  const [filterIdShort, setFilterIdShort] = useState('')
+  const [filterTitle, setFilterTitle] = useState('')
+  const [filterName, setFilterName] = useState('')
+  const [filterMinAmount, setFilterMinAmount] = useState('')
+  const [filterMaxAmount, setFilterMaxAmount] = useState('')
+
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -103,7 +110,12 @@ export default function InvoiceHistory() {
     fromDate?: string,
     paymentRef?: string,
     paymentType?: string,
-    email?: string
+    email?: string,
+    idShort?: string,
+    title?: string,
+    name?: string,
+    minAmount?: string,
+    maxAmount?: string
   ) => {
     try {
       const params = new URLSearchParams()
@@ -115,6 +127,11 @@ export default function InvoiceHistory() {
       if (fromDate) params.append('fromDate', fromDate)
       if (onlyPendingCredit) params.append('onlyPendingCredit', 'true')
       if (email?.trim()) params.append('email', email.trim())
+      if (idShort?.trim()) params.append('idShort', idShort.trim())
+      if (title?.trim()) params.append('title', title.trim())
+      if (name?.trim()) params.append('name', name.trim())
+      if (minAmount?.trim()) params.append('minAmount', minAmount.trim())
+      if (maxAmount?.trim()) params.append('maxAmount', maxAmount.trim())
 
       const response = await fetch(`/api/invoices?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch invoices')
@@ -169,10 +186,10 @@ export default function InvoiceHistory() {
   }
 
   useEffect(() => {
-    fetchInvoices(filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, filterEmail)
+    fetchInvoices(filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, filterEmail, filterIdShort, filterTitle, filterName, filterMinAmount, filterMaxAmount)
     fetchGraphData(filterPhone, filterTag, maxDate)
     fetchTotalAmount(filterPhone, filterTag, maxDate)
-  }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit, filterEmail])
+  }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit, filterEmail, filterIdShort, filterTitle, filterName, filterMinAmount, filterMaxAmount])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return
@@ -223,12 +240,31 @@ export default function InvoiceHistory() {
     document.body.removeChild(link)
   }
 
+  const handleResetFilters = () => {
+    setFilterPhone('')
+    setFilterTag(undefined)
+    setPaymentRef('')
+    setPaymentType(undefined)
+    setFilterEmail('')
+    setFilterIdShort('')
+    setFilterTitle('')
+    setFilterName('')
+    setFilterMinAmount('')
+    setFilterMaxAmount('')
+    setOnlyPendingCredit(false)
+    const fromD = new Date()
+    fromD.setMonth(fromD.getMonth() - 1)
+    setFromDate(fromD.toISOString().split('T')[0])
+    setMaxDate(getTodayDate())
+  }
+
   return (
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-4 justify-between">
         <div className="flex items-center gap-4 w-full">
           <h2 className="text-xl font-semibold">Invoice Dashboard</h2>
+          <Button variant="outline" size="sm" onClick={handleResetFilters}>Reset Filters</Button>
           <Button variant="outline" size="sm" onClick={handleExportCSV}>Export CSV</Button>
         </div>
 
@@ -258,6 +294,56 @@ export default function InvoiceHistory() {
             placeholder="Search by email"
             value={filterEmail}
             onChange={e => setFilterEmail(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Invoice No.</label>
+          <Input
+            placeholder="Filter by ID"
+            value={filterIdShort}
+            onChange={e => setFilterIdShort(e.target.value)}
+            className="w-24"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Title</label>
+          <Input
+            placeholder="Search by title"
+            value={filterTitle}
+            onChange={e => setFilterTitle(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Name</label>
+          <Input
+            placeholder="Search by name"
+            value={filterName}
+            onChange={e => setFilterName(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Min Amount (₹)</label>
+          <Input
+            type="number"
+            placeholder="0"
+            value={filterMinAmount}
+            onChange={e => setFilterMinAmount(e.target.value)}
+            className="w-32"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Max Amount (₹)</label>
+          <Input
+            type="number"
+            placeholder="9999"
+            value={filterMaxAmount}
+            onChange={e => setFilterMaxAmount(e.target.value)}
+            className="w-32"
           />
         </div>
 
@@ -328,34 +414,10 @@ export default function InvoiceHistory() {
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="flex gap-6">
-        <Card className="flex-1 max-w-xs">
-          <CardHeader>
-            <CardTitle>Total Amount</CardTitle>
-          </CardHeader>
-          <CardContent className="text-3xl font-bold">₹{totalAmount}</CardContent>
-        </Card>
 
-        <Card className="flex-1">
-          <CardHeader>
-            <CardTitle>Monthly Totals</CardTitle>
-          </CardHeader>
-          <CardContent className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyTotals}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="total" stroke="#10b981" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Table */}
-      <div className="overflow-auto max-h-[600px] border rounded-md">
+      <div className="overflow-auto border rounded-md" style={{ height: 'calc(100vh - 250px)' }}>
         <table className="min-w-full border-collapse table-auto">
           <thead className="sticky top-0 bg-muted z-10">
             <tr>
@@ -370,8 +432,9 @@ export default function InvoiceHistory() {
               <th className="border px-3 py-2 text-right">Payment Reference</th>
               <th className="border px-3 py-2 text-left">Date</th>
               <th className="border px-3 py-2 text-left">Actual Credit Date</th>
-              <th className="border px-3 py-2 text-center">Actions</th>
+              <th className="border px-3 py-2 text-center">Print</th>
               <th className="border px-3 py-2 text-center">Record Create date</th>
+              <th className="border px-3 py-2 text-center">Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -425,15 +488,7 @@ export default function InvoiceHistory() {
                       }}
                     />
                   </td>
-                  <td className="border px-3 py-2 text-center space-x-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(inv.id)}
-                      disabled={loadingDelete === inv.id}
-                    >
-                      {loadingDelete === inv.id ? 'Deleting...' : 'Delete'}
-                    </Button>
+                  <td className="border px-3 py-2 text-center">
                     <Button
                       variant="secondary"
                       size="sm"
@@ -443,6 +498,16 @@ export default function InvoiceHistory() {
                     </Button>
                   </td>
                   <td className="border px-3 py-2">{formatDateDDMMYYYY(inv.created_at)}</td>
+                  <td className="border px-3 py-2 text-center">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(inv.id)}
+                      disabled={loadingDelete === inv.id}
+                    >
+                      {loadingDelete === inv.id ? 'Deleting...' : 'Delete'}
+                    </Button>
+                  </td>
                 </tr>
               ))
             )}

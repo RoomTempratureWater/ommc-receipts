@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
     const onlyPendingCredit = searchParams.get('onlyPendingCredit')
     const dateFilterMode = searchParams.get('dateFilterMode')
     const email = searchParams.get('email')
+    
+    // New filters
+    const id = searchParams.get('id')
+    const title = searchParams.get('title')
+    const paymentType = searchParams.get('paymentType')
+    const minAmount = searchParams.get('minAmount')
+    const maxAmount = searchParams.get('maxAmount')
 
     // Build where clause
     const where: any = {}
@@ -60,6 +67,17 @@ export async function GET(request: NextRequest) {
       where.users = {
         email: { contains: email, mode: 'insensitive' }
       }
+    }
+    
+    // Add new filters
+    if (id) where.id = { startsWith: id }
+    if (title) where.title = { contains: title, mode: 'insensitive' }
+    if (paymentType && paymentType !== '__all__') where.payment_type = paymentType
+    
+    if (minAmount || maxAmount) {
+      where.amount = {}
+      if (minAmount) where.amount.gte = parseFloat(minAmount)
+      if (maxAmount) where.amount.lte = parseFloat(maxAmount)
     }
 
     const expenditures = await db.expenditures.findMany({
@@ -144,6 +162,23 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    }
+
+    const userId = await getUserIdFromToken(request)
+    
+    const expenditure = await db.expenditures.findUnique({
+      where: { id }
+    })
+
+    if (expenditure) {
+      await db.deleted_records.create({
+        data: {
+          record_id: expenditure.id,
+          record_type: 'EXPENDITURE',
+          record_data: JSON.parse(JSON.stringify(expenditure)),
+          deleted_by: userId
+        } as any
+      })
     }
 
     await db.expenditures.delete({
