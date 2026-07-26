@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
           (date_trunc('month', i.effective_from) + (n || ' months')::interval)::date as effective_month,
           -- Cast to numeric to prevent integer division resulting in 0
           round(
-            i.amount::numeric / ((date_part('month', age(i.effective_to, i.effective_from)) + 1)::numeric),
+            i.amount::numeric / (((EXTRACT(year FROM i.effective_to) - EXTRACT(year FROM i.effective_from)) * 12 + (EXTRACT(month FROM i.effective_to) - EXTRACT(month FROM i.effective_from)) + 1)::numeric),
             2
           ) as amount
         FROM public.invoices i
         JOIN generate_series(
           0,
-          (date_part('month', age(i.effective_to, i.effective_from)) + 1)::int - 1
+          ((EXTRACT(year FROM i.effective_to) - EXTRACT(year FROM i.effective_from)) * 12 + (EXTRACT(month FROM i.effective_to) - EXTRACT(month FROM i.effective_from)))::int
         ) as n ON true
         JOIN public.tags t ON t.tag_id = i.tag
         WHERE t.tag_name = 'Church Fund'

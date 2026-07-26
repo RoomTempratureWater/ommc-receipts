@@ -51,6 +51,8 @@ export default function AddInvoiceForm() {
   const [useRange, setUseRange] = useState(false)
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
+  const [useSingleMonth, setUseSingleMonth] = useState(false)
+  const [singleMonth, setSingleMonth] = useState('')
   const [paymentType, setPaymentType] = useState('cash')
   const [paymentReference, setPaymentReference] = useState('')
   const [error, setError] = useState('')
@@ -148,8 +150,13 @@ export default function AddInvoiceForm() {
     if (availableSubtags.length > 0 && !subtag) return 'Please select a subtag for the chosen tag.'
     if (isNaN(Number(amount))) return 'Amount must be a number.'
     if (paymentType !== 'cash' && !paymentReference) return 'Payment reference is required for non-cash payments.'
-    if (selectedTagName === 'Church Fund' && useRange && (!fromDate || !toDate)) {
-      return 'From and To dates are required when using a date range.'
+    if (selectedTagName === 'Church Fund') {
+      if (useRange && (!fromDate || !toDate)) {
+        return 'From and To dates are required when using a date range.'
+      }
+      if (useSingleMonth && !singleMonth) {
+        return 'Please select the single month you are paying for.'
+      }
     }
     return null
   }
@@ -167,6 +174,7 @@ export default function AddInvoiceForm() {
     const user = { id: 'temp-user-id' }
 
     const useValidRange = useRange && fromDate && toDate
+    const useValidSingleMonth = useSingleMonth && singleMonth
 
     let finalEffectiveFrom = null;
     let finalEffectiveTo = null;
@@ -176,6 +184,10 @@ export default function AddInvoiceForm() {
       
       const [toYear, toMonth] = toDate.split('-');
       finalEffectiveTo = new Date(Date.UTC(Number(toYear), Number(toMonth), 0));
+    } else if (useValidSingleMonth) {
+      const [sYear, sMonth] = singleMonth.split('-');
+      finalEffectiveFrom = new Date(Date.UTC(Number(sYear), Number(sMonth) - 1, 1));
+      finalEffectiveTo = new Date(Date.UTC(Number(sYear), Number(sMonth), 0));
     } else {
       finalEffectiveFrom = new Date(date);
     }
@@ -220,6 +232,8 @@ export default function AddInvoiceForm() {
       setDate(getTodayDate())
       setFromDate('')
       setToDate('')
+      setUseSingleMonth(false)
+      setSingleMonth('')
       setAddress('')
       setTag(undefined)
       setSubtag(undefined)
@@ -347,8 +361,28 @@ export default function AddInvoiceForm() {
           </p>
           <div className="flex items-center space-x-2">
             <Checkbox
+              checked={useSingleMonth}
+              onCheckedChange={checked => {
+                setUseSingleMonth(Boolean(checked))
+                if (checked) setUseRange(false)
+              }}
+              id="use-single-month"
+            />
+            <Label htmlFor="use-single-month">Paying for a specific single month</Label>
+          </div>
+          {useSingleMonth && (
+            <div>
+              <Label>Month</Label>
+              <Input type="month" value={singleMonth} onChange={e => setSingleMonth(e.target.value)} />
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <Checkbox
               checked={useRange}
-              onCheckedChange={checked => setUseRange(Boolean(checked))}
+              onCheckedChange={checked => {
+                setUseRange(Boolean(checked))
+                if (checked) setUseSingleMonth(false)
+              }}
               id="use-range"
             />
             <Label htmlFor="use-range">Paying for a range of months</Label>
