@@ -38,6 +38,8 @@ export async function GET(request: NextRequest) {
     const paymentType = searchParams.get('paymentType')
     const minAmount = searchParams.get('minAmount')
     const maxAmount = searchParams.get('maxAmount')
+    const recordStartDate = searchParams.get('recordStartDate')
+    const recordEndDate = searchParams.get('recordEndDate')
 
     // Build where clause
     const where: any = {}
@@ -55,6 +57,13 @@ export async function GET(request: NextRequest) {
     } else {
       if (startDate) where.date = { gte: new Date(startDate) }
       if (endDate) where.date = { ...where.date, lte: new Date(endDate) }
+    }
+    
+    if (recordEndDate) {
+      where.created_at = { ...where.created_at, lte: new Date(recordEndDate + 'T23:59:59') }
+    }
+    if (recordStartDate) {
+      where.created_at = { ...where.created_at, gte: new Date(recordStartDate + 'T00:00:00') }
     }
     
     if (tags) {

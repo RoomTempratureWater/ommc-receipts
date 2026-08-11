@@ -58,6 +58,8 @@ export default function ExpenditureHistory() {
   const [endDate, setEndDate] = useState(() => {
     return new Date().toISOString().split('T')[0]
   })
+  const [recordStartDate, setRecordStartDate] = useState('')
+  const [recordEndDate, setRecordEndDate] = useState('')
   const [paymentRefFilter, setPaymentRefFilter] = useState('')
   const [showPendingCheques, setShowPendingCheques] = useState(false)
   const [filterEmail, setFilterEmail] = useState('')
@@ -107,6 +109,8 @@ export default function ExpenditureHistory() {
         if (filterPaymentType && filterPaymentType !== '__all__') params.append('paymentType', filterPaymentType)
         if (filterMinAmount.trim()) params.append('minAmount', filterMinAmount.trim())
         if (filterMaxAmount.trim()) params.append('maxAmount', filterMaxAmount.trim())
+        if (recordStartDate) params.append('recordStartDate', recordStartDate)
+        if (recordEndDate) params.append('recordEndDate', recordEndDate)
 
         const response = await fetch(`/api/expenditures?${params.toString()}`)
         if (!response.ok) throw new Error('Failed to fetch expenditures')
@@ -126,7 +130,7 @@ export default function ExpenditureHistory() {
     }
 
     fetchExpenditures()
-  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail, filterId, filterTitle, filterPaymentType, filterMinAmount, filterMaxAmount])
+  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail, filterId, filterTitle, filterPaymentType, filterMinAmount, filterMaxAmount, recordStartDate, recordEndDate])
 
   const toggleTag = (tagId: string) => {
     const updated = selectedTags.includes(tagId)
@@ -224,6 +228,8 @@ export default function ExpenditureHistory() {
     setFilterMaxAmount('')
     setSelectedTags(tags.map(t => t.tag_id))
     setAllSelected(true)
+    setRecordStartDate('')
+    setRecordEndDate('')
   }
 
   return (
@@ -236,14 +242,41 @@ export default function ExpenditureHistory() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 items-end">
-        <div>
-          <Label>Start Date</Label>
-          <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+        {/* Date Boxes */}
+        <div className="flex gap-4 w-full">
+          <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Expense Date</span>
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">From</label>
+                  <Input type="date" className="w-36 text-sm" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">To</label>
+                  <Input type="date" className="w-36 text-sm" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Record Create Date</span>
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">From</label>
+                  <Input type="date" className="w-36 text-sm" value={recordStartDate} onChange={e => setRecordStartDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">To</label>
+                  <Input type="date" className="w-36 text-sm" value={recordEndDate} onChange={e => setRecordEndDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <Label>End Date</Label>
-          <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-        </div>
+
         <div>
           <Label>Payment Ref</Label>
           <Input value={paymentRefFilter} onChange={e => setPaymentRefFilter(e.target.value)} placeholder="Filter by ref" />
