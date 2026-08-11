@@ -26,6 +26,7 @@ interface Expenditure {
     tag_name: string
   } | null
   date: string
+  created_at: string
   image_url?: string
   signed_image_url?: string | null
   actual_amt_credit_dt: string | null
@@ -198,7 +199,8 @@ export default function ExpenditureHistory() {
       'Payment Reference': exp.payment_reference || '',
       'Amount (₹)': exp.amount,
       Date: formatDateDDMMYYYY(exp.date),
-      'Debited On': formatDateDDMMYYYY(exp.actual_amt_credit_dt)
+      'Debited On': formatDateDDMMYYYY(exp.actual_amt_credit_dt),
+      'Record Create Date': formatDateDDMMYYYY(exp.created_at)
     }))
 
     const csv = Papa.unparse(csvData)
@@ -357,6 +359,7 @@ export default function ExpenditureHistory() {
               <th className="border px-3 py-2 text-right">Amount</th>
               <th className="border px-3 py-2 text-left">Date</th>
               <th className="border px-3 py-2 text-left">Debited On</th>
+              <th className="border px-3 py-2 text-left">Record Create Date</th>
               <th className="border px-3 py-2 text-center">Image</th>
               {userRole === 'admin' && <th className="border px-3 py-2 text-center">Actions</th>}
             </tr>
@@ -364,7 +367,7 @@ export default function ExpenditureHistory() {
           <tbody>
             {expenditures.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center p-4 text-gray-500">No expenditures found.</td>
+                <td colSpan={11} className="text-center p-4 text-gray-500">No expenditures found.</td>
               </tr>
             ) : (
               expenditures.map(exp => (
@@ -386,6 +389,7 @@ export default function ExpenditureHistory() {
                       onChange={e => updateCreditDate(exp.id, e.target.value)}
                     />
                   </td>
+                  <td className="border px-3 py-2">{formatDateDDMMYYYY(exp.created_at)}</td>
                   <td className="border px-3 py-2 text-center">
                     {exp.signed_image_url ? (
                       <a href={exp.signed_image_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">
