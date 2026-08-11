@@ -27,7 +27,24 @@ export async function middleware(request: NextRequest) {
   try {
     // Verify JWT token using jose (Edge Runtime compatible)
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
-    await jwtVerify(token, secret)
+    const { payload } = await jwtVerify(token, secret)
+    
+    const role = payload.role as string;
+    
+    // RBAC logic for standard users
+    if (role === 'user' && pathname.startsWith('/dashboard/')) {
+      const allowedUserPaths = [
+        '/dashboard/members',
+        '/dashboard/add-invoice',
+        '/dashboard/invoice-history',
+        '/dashboard/church-funds'
+      ];
+      
+      if (!allowedUserPaths.includes(pathname)) {
+        return NextResponse.redirect(new URL('/dashboard/invoice-history', request.url))
+      }
+    }
+
     return NextResponse.next()
   } catch (error) {
     // Token is invalid, redirect to login

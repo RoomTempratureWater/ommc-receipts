@@ -21,6 +21,10 @@ interface Expenditure {
   payment_type: string
   payment_reference?: string
   tag: string
+  subtag?: string | null
+  tags?: {
+    tag_name: string
+  } | null
   date: string
   image_url?: string
   signed_image_url?: string | null
@@ -45,6 +49,7 @@ export default function ExpenditureHistory() {
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [allSelected, setAllSelected] = useState(true)
+  const [userRole, setUserRole] = useState<string>('user')
   const [startDate, setStartDate] = useState(() => {
     const d = new Date()
     d.setMonth(d.getMonth() - 1)
@@ -76,6 +81,15 @@ export default function ExpenditureHistory() {
       }
     }
     init()
+
+    const fetchRole = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        const data = await response.json()
+        if (data?.user?.role) setUserRole(data.user.role)
+      } catch (error) {}
+    }
+    fetchRole()
   }, [])
 
   useEffect(() => {
@@ -174,6 +188,8 @@ export default function ExpenditureHistory() {
       'Expense ID': exp.id.substring(0, 8),
       Title: exp.title,
       'Created By': exp.users?.email || 'System',
+      Tag: exp.tags?.tag_name || '',
+      Subtag: exp.subtag || '',
       'Payment Type': exp.payment_type,
       'Payment Reference': exp.payment_reference || '',
       'Amount (₹)': exp.amount,
@@ -301,19 +317,21 @@ export default function ExpenditureHistory() {
               <th className="border px-3 py-2 text-left">Expense ID</th>
               <th className="border px-3 py-2 text-left">Title</th>
               <th className="border px-3 py-2 text-left">Created By</th>
+              <th className="border px-3 py-2 text-left">Tag</th>
+              <th className="border px-3 py-2 text-left">Subtag</th>
               <th className="border px-3 py-2 text-left">Payment Type</th>
               <th className="border px-3 py-2 text-left">Ref</th>
               <th className="border px-3 py-2 text-right">Amount</th>
               <th className="border px-3 py-2 text-left">Date</th>
               <th className="border px-3 py-2 text-left">Debited On</th>
               <th className="border px-3 py-2 text-center">Image</th>
-              <th className="border px-3 py-2 text-center">Actions</th>
+              {userRole === 'admin' && <th className="border px-3 py-2 text-center">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {expenditures.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center p-4 text-gray-500">No expenditures found.</td>
+                <td colSpan={10} className="text-center p-4 text-gray-500">No expenditures found.</td>
               </tr>
             ) : (
               expenditures.map(exp => (
@@ -321,6 +339,8 @@ export default function ExpenditureHistory() {
                   <td className="border px-3 py-2 text-gray-500 font-mono text-xs">{exp.id.substring(0, 8)}</td>
                   <td className="border px-3 py-2">{exp.title}</td>
                   <td className="border px-3 py-2 text-gray-600">{exp.users?.email || 'System'}</td>
+                  <td className="border px-3 py-2">{exp.tags?.tag_name || '-'}</td>
+                  <td className="border px-3 py-2">{exp.subtag || '-'}</td>
                   <td className="border px-3 py-2">{exp.payment_type}</td>
                   <td className="border px-3 py-2">{exp.payment_reference || '-'}</td>
                   <td className="border px-3 py-2 text-right">₹{exp.amount}</td>
@@ -342,12 +362,13 @@ export default function ExpenditureHistory() {
                       <span className="text-gray-400 italic">None</span>
                     )}
                   </td>
-                  <td className="border px-3 py-2 text-center space-x-2">
-
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(exp.id)}>
-                      Delete
-                    </Button>
-                  </td>
+                  {userRole === 'admin' && (
+                    <td className="border px-3 py-2 text-center space-x-2">
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(exp.id)}>
+                        Delete
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

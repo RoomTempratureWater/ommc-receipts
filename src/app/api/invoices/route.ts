@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
     const name = searchParams.get('name')
     const minAmount = searchParams.get('minAmount')
     const maxAmount = searchParams.get('maxAmount')
+    const recordStartDate = searchParams.get('recordStartDate')
+    const recordEndDate = searchParams.get('recordEndDate')
 
     // Build where clause
     const where: any = {}
@@ -84,11 +86,18 @@ export async function GET(request: NextRequest) {
       }
     } else {
       if (effectiveEndDate) {
-        where.created_at = { ...where.created_at, lte: new Date(effectiveEndDate + 'T23:59:59') }
+        where.date = { ...where.date, lte: new Date(effectiveEndDate + 'T23:59:59') }
       }
       if (effectiveStartDate) {
-        where.created_at = { ...where.created_at, gte: new Date(effectiveStartDate + 'T00:00:00') }
+        where.date = { ...where.date, gte: new Date(effectiveStartDate + 'T00:00:00') }
       }
+    }
+
+    if (recordEndDate) {
+      where.created_at = { ...where.created_at, lte: new Date(recordEndDate + 'T23:59:59') }
+    }
+    if (recordStartDate) {
+      where.created_at = { ...where.created_at, gte: new Date(recordStartDate + 'T00:00:00') }
     }
 
     if (onlyPendingCredit === 'true') where.actual_amt_credit_dt = null

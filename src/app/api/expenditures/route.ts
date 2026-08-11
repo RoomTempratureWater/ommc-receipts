@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
-import jwt from 'jsonwebtoken'
+import { jwtVerify } from 'jose'
 
-async function getUserIdFromToken(request: NextRequest): Promise<string | null> {
+async function getUserFromToken(request: NextRequest): Promise<{ userId: string, role: string } | null> {
   try {
     const token = request.cookies.get('auth-token')?.value
     if (!token) return null
     
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any
-    return decoded.userId
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
+    const { payload } = await jwtVerify(token, secret)
+    return { userId: payload.userId as string, role: payload.role as string }
   } catch {
     return null
   }
@@ -101,7 +102,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = await getUserIdFromToken(request)
+    const user = await getUserFromToken(request)
+    const userId = user?.userId
 
     const body = await request.json()
     const expenditure = await db.expenditures.create({
@@ -164,7 +166,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 })
     }
 
-    const userId = await getUserIdFromToken(request)
+    const user = await getUserFromToken(request)
+    if (!user || user.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const userId = user.userId
     
     const expenditure = await db.expenditures.findUnique({
       where: { id }

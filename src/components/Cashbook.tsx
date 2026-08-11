@@ -162,7 +162,7 @@ export default function Cashbook() {
   const netBank = totalInvoiceBank - totalExpenseBank
 
   const downloadCSV = () => {
-    let csv = `Balance Sheet Report (${startDate} to ${endDate})\n\n`
+    let csv = `Cashbook Report (${startDate} to ${endDate})\n\n`
 
     csv += `Invoices\nTag,Subtag,Cash,Bank\n`
     Object.entries(invoiceTotals).forEach(([tagId, { cash, bank, subtags }]) => {
@@ -202,7 +202,7 @@ export default function Cashbook() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', `balance_sheet_${startDate}_to_${endDate}.csv`)
+    link.setAttribute('download', `cashbook_${startDate}_to_${endDate}.csv`)
     link.click()
   }
 

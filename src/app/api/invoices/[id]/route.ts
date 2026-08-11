@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
 import { jwtVerify } from 'jose'
 
-async function getUserIdFromToken(request: NextRequest): Promise<string | null> {
+async function getUserFromToken(request: NextRequest): Promise<{ userId: string, role: string } | null> {
   try {
     const token = request.cookies.get('auth-token')?.value
     if (!token) return null
     
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
     const { payload } = await jwtVerify(token, secret)
-    return (payload as any).userId
+    return { userId: payload.userId as string, role: payload.role as string }
   } catch {
     return null
   }
@@ -20,10 +20,11 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = await getUserIdFromToken(request)
-    if (!userId) {
+    const user = await getUserFromToken(request)
+    if (!user || user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const userId = user.userId;
 
     const invoice = await db.invoices.findUnique({
       where: { id: params.id }

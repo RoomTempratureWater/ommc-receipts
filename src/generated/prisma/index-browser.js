@@ -410,6 +410,15 @@ exports.Prisma.Deleted_recordsScalarFieldEnum = {
   deleted_at: 'deleted_at'
 };
 
+exports.Prisma.User_rolesScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  role: 'role',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -475,6 +484,16 @@ exports.aal_level = exports.$Enums.aal_level = {
   aal3: 'aal3'
 };
 
+exports.user_role = exports.$Enums.user_role = {
+  admin: 'admin',
+  user: 'user'
+};
+
+exports.user_status = exports.$Enums.user_status = {
+  active: 'active',
+  revoked: 'revoked'
+};
+
 exports.Prisma.ModelName = {
   audit_log_entries: 'audit_log_entries',
   flow_state: 'flow_state',
@@ -500,7 +519,8 @@ exports.Prisma.ModelName = {
   keys: 'keys',
   members: 'members',
   tags: 'tags',
-  deleted_records: 'deleted_records'
+  deleted_records: 'deleted_records',
+  user_roles: 'user_roles'
 };
 
 /**

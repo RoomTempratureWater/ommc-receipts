@@ -32,6 +32,7 @@ type Invoice = {
   payment_reference?: string;
   payment_type?: string;
   created_at: string;
+  date: string;
   actual_amt_credit_dt: string | null;
   id_short: number;
   tags?: Tag;
@@ -64,6 +65,7 @@ export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [monthlyTotals, setMonthlyTotals] = useState<MonthlyTotal[]>([])
   const [totalAmount, setTotalAmount] = useState<number>(0)
+  const [userRole, setUserRole] = useState<string>('user')
 
   const [filterPhone, setFilterPhone] = useState('')
   const [filterTag, setFilterTag] = useState<string | undefined>()
@@ -76,6 +78,10 @@ export default function InvoiceHistory() {
     d.setMonth(d.getMonth() - 1)
     return d.toISOString().split('T')[0]
   })
+  
+  const [recordStartDate, setRecordStartDate] = useState('')
+  const [recordEndDate, setRecordEndDate] = useState('')
+  
   const [tags, setTags] = useState<Tag[]>([])
 
   const [loadingDelete, setLoadingDelete] = useState<string | null>(null)
@@ -101,6 +107,15 @@ export default function InvoiceHistory() {
       }
     }
     fetchTags()
+
+    const fetchRole = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        const data = await response.json()
+        if (data?.user?.role) setUserRole(data.user.role)
+      } catch (error) {}
+    }
+    fetchRole()
   }, [])
 
   const fetchInvoices = async (
@@ -115,7 +130,9 @@ export default function InvoiceHistory() {
     title?: string,
     name?: string,
     minAmount?: string,
-    maxAmount?: string
+    maxAmount?: string,
+    recordStartDate?: string,
+    recordEndDate?: string
   ) => {
     try {
       const params = new URLSearchParams()
@@ -132,6 +149,8 @@ export default function InvoiceHistory() {
       if (name?.trim()) params.append('name', name.trim())
       if (minAmount?.trim()) params.append('minAmount', minAmount.trim())
       if (maxAmount?.trim()) params.append('maxAmount', maxAmount.trim())
+      if (recordStartDate) params.append('recordStartDate', recordStartDate)
+      if (recordEndDate) params.append('recordEndDate', recordEndDate)
 
       const response = await fetch(`/api/invoices?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch invoices')
@@ -186,10 +205,10 @@ export default function InvoiceHistory() {
   }
 
   useEffect(() => {
-    fetchInvoices(filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, filterEmail, filterIdShort, filterTitle, filterName, filterMinAmount, filterMaxAmount)
+    fetchInvoices(filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, filterEmail, filterIdShort, filterTitle, filterName, filterMinAmount, filterMaxAmount, recordStartDate, recordEndDate)
     fetchGraphData(filterPhone, filterTag, maxDate)
     fetchTotalAmount(filterPhone, filterTag, maxDate)
-  }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit, filterEmail, filterIdShort, filterTitle, filterName, filterMinAmount, filterMaxAmount])
+  }, [filterPhone, filterTag, maxDate, fromDate, paymentRef, paymentType, onlyPendingCredit, filterEmail, filterIdShort, filterTitle, filterName, filterMinAmount, filterMaxAmount, recordStartDate, recordEndDate])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return
@@ -223,7 +242,7 @@ export default function InvoiceHistory() {
       'Payment Type': inv.payment_type || '',
       'Amount (₹)': inv.amount,
       'Payment Reference': inv.payment_reference || '',
-      Date: formatDateDDMMYYYY(inv.created_at),
+      Date: formatDateDDMMYYYY(inv.date),
       'Actual Credit Date': formatDateDDMMYYYY(inv.actual_amt_credit_dt),
       'Record Create Date': formatDateDDMMYYYY(inv.created_at)
     }))
@@ -256,6 +275,8 @@ export default function InvoiceHistory() {
     fromD.setMonth(fromD.getMonth() - 1)
     setFromDate(fromD.toISOString().split('T')[0])
     setMaxDate(getTodayDate())
+    setRecordStartDate('')
+    setRecordEndDate('')
   }
 
   return (
@@ -347,26 +368,61 @@ export default function InvoiceHistory() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">From Date</label>
-          <Input
-            type="date"
-            className="w-48"
-            value={fromDate}
-            max={maxDate}
-            onChange={e => setFromDate(e.target.value)}
-          />
-        </div>
+        {/* Date Boxes */}
+        <div className="flex gap-4 w-full">
+          <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Invoice Date</span>
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">From</label>
+                  <Input
+                    type="date"
+                    className="w-36 text-sm"
+                    value={fromDate}
+                    max={maxDate}
+                    onChange={e => setFromDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">To</label>
+                  <Input
+                    type="date"
+                    className="w-36 text-sm"
+                    value={maxDate}
+                    max={getTodayDate()}
+                    onChange={e => setMaxDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">To Date</label>
-          <Input
-            type="date"
-            className="w-48"
-            value={maxDate}
-            max={getTodayDate()}
-            onChange={e => setMaxDate(e.target.value)}
-          />
+          <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Record Create Date</span>
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">From</label>
+                  <Input
+                    type="date"
+                    className="w-36 text-sm"
+                    value={recordStartDate}
+                    onChange={e => setRecordStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">To</label>
+                  <Input
+                    type="date"
+                    className="w-36 text-sm"
+                    value={recordEndDate}
+                    onChange={e => setRecordEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="w-48">
@@ -434,7 +490,7 @@ export default function InvoiceHistory() {
               <th className="border px-3 py-2 text-left">Actual Credit Date</th>
               <th className="border px-3 py-2 text-center">Print</th>
               <th className="border px-3 py-2 text-center">Record Create date</th>
-              <th className="border px-3 py-2 text-center">Delete</th>
+              {userRole === 'admin' && <th className="border px-3 py-2 text-center">Delete</th>}
             </tr>
           </thead>
           <tbody>
@@ -454,7 +510,7 @@ export default function InvoiceHistory() {
                   <td className="border px-3 py-2">{inv.payment_type || <span className="italic text-gray-400">—</span>}</td>
                   <td className="border px-3 py-2 text-right">{inv.amount}</td>
                   <td className="border px-3 py-2">{inv.payment_reference || <span className="italic text-gray-400">—</span>}</td>
-                  <td className="border px-3 py-2">{formatDateDDMMYYYY(inv.created_at)}</td>
+                  <td className="border px-3 py-2">{formatDateDDMMYYYY(inv.date)}</td>
                   <td className="border px-3 py-2">
                     <input
                       type="date"
@@ -498,16 +554,18 @@ export default function InvoiceHistory() {
                     </Button>
                   </td>
                   <td className="border px-3 py-2">{formatDateDDMMYYYY(inv.created_at)}</td>
-                  <td className="border px-3 py-2 text-center">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(inv.id)}
-                      disabled={loadingDelete === inv.id}
-                    >
-                      {loadingDelete === inv.id ? 'Deleting...' : 'Delete'}
-                    </Button>
-                  </td>
+                  {userRole === 'admin' && (
+                    <td className="border px-3 py-2 text-center">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(inv.id)}
+                        disabled={loadingDelete === inv.id}
+                      >
+                        {loadingDelete === inv.id ? 'Deleting...' : 'Delete'}
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

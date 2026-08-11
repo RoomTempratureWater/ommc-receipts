@@ -343,6 +343,8 @@ model users {
   sessions                    sessions[]
   expenditures                expenditures[]
   invoices                    invoices[]
+  deleted_records             deleted_records[]
+  user_roles                  user_roles?
 
   @@index([instance_id])
   @@index([is_anonymous])
@@ -394,7 +396,7 @@ model invoice_tags {
 model invoices {
   id                   String    @id @default(dbgenerated("extensions.uuid_generate_v4()")) @db.Uuid
   user_id              String?   @db.Uuid
-  phone                String?   @db.VarChar(10)
+  phone                String?   @db.VarChar
   name                 String?
   title                String
   amount               Decimal   @db.Decimal
@@ -446,6 +448,18 @@ model tags {
   @@schema("public")
 }
 
+model deleted_records {
+  id          String   @id @default(dbgenerated("extensions.uuid_generate_v4()")) @db.Uuid
+  record_id   String   @db.VarChar
+  record_type String   @db.VarChar
+  record_data Json     @db.Json
+  deleted_by  String?  @db.Uuid
+  deleted_at  DateTime @default(now()) @db.Timestamptz(6)
+  users       users?   @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
 enum aal_level {
   aal1
   aal2
@@ -492,4 +506,16 @@ enum one_time_token_type {
   phone_change_token
 
   @@schema("auth")
+}
+
+model user_roles {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @unique @db.Uuid
+  role       String    @default("user")
+  status     String    @default("active")
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
 }

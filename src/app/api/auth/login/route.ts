@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
 
     // Find user by email in Supabase auth.users table
     const user = await db.users.findFirst({
-      where: { email }
+      where: { email },
+      include: {
+        user_roles: true
+      }
     })
 
     if (!user || !user.encrypted_password) {
@@ -36,12 +39,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const userRole = user.user_roles?.role || 'user';
+    const userStatus = user.user_roles?.status || 'active';
+
+    if (userStatus === 'revoked') {
+      return NextResponse.json(
+        { error: 'Account access has been revoked' },
+        { status: 403 }
+      )
+    }
+
     // Create JWT token using jose
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
-    const token = await new SignJWT({ userId: user.id, email: user.email })
+    const token = await new SignJWT({ userId: user.id, email: user.email, role: userRole })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime('7d')
+      .setExpirationTime('12h')
       .sign(secret)
 
     // Set HTTP-only cookie
@@ -58,7 +71,6 @@ export async function POST(request: NextRequest) {
       // Change this: Only set secure if it's actually HTTPS
       secure: isSecureContext, 
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
       path: '/'
     })
 

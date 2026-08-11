@@ -22,6 +22,7 @@ function generateMemberId(phone: string, name: string): string {
 export default function MembersList() {
   const [members, setMembers] = useState<Member[]>([])
   const [filtered, setFiltered] = useState<Member[]>([])
+  const [userRole, setUserRole] = useState<string>('user')
 
   const [searchName, setSearchName] = useState('')
   const [searchPhone, setSearchPhone] = useState('')
@@ -51,6 +52,15 @@ export default function MembersList() {
       }
     }
     fetchMembers()
+
+    const fetchRole = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        const data = await response.json()
+        if (data?.user?.role) setUserRole(data.user.role)
+      } catch (error) {}
+    }
+    fetchRole()
   }, [])
 
   useEffect(() => {
@@ -291,13 +301,15 @@ export default function MembersList() {
                         >
                           Edit
                         </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(member.id)}
-                        >
-                          Delete
-                        </Button>
+                        {userRole === 'admin' && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(member.id)}
+                          >
+                            Delete
+                          </Button>
+                        )}
                       </td>
                     </>
                   )}
