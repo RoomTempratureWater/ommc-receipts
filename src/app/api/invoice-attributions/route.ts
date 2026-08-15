@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
           i.id_short as id_short,
           i.name as name,
           i.phone as phone,
-          TO_CHAR(i.date, 'DD/MM/YYYY') as formatted_date,
+          TO_CHAR(i.date, 'DD-MM-YYYY') as formatted_date,
           (date_trunc('month', i.effective_from) + (n || ' months')::interval)::date as effective_month,
           -- Cast to numeric to prevent integer division resulting in 0
           round(
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           i.id_short as id_short,
           i.name as name,
           i.phone as phone,
-          TO_CHAR(i.date, 'DD/MM/YYYY') as formatted_date,
+          TO_CHAR(i.date, 'DD-MM-YYYY') as formatted_date,
           date_trunc('month', coalesce(i.effective_from, i.date))::date as effective_month,
           i.amount::numeric as amount
         FROM public.invoices i

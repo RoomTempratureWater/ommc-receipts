@@ -219,10 +219,10 @@ export default function AddInvoiceForm() {
       if (!response.ok) throw new Error('Failed to create invoice')
       const { invoice } = await response.json()
       
-      setSuccess('Invoice added successfully!')
+      setSuccess('Receipt added successfully!')
       
       // Show confirmation dialog
-      if (confirm('Invoice added successfully! Would you like to print it?')) {
+      if (confirm('Receipt added successfully! Would you like to print it?')) {
         printInvoice(invoice)
       }
       setPhone('')
@@ -249,7 +249,7 @@ export default function AddInvoiceForm() {
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-4">
-      <h2 className="text-xl font-semibold text-center">Add Invoice</h2>
+      <h2 className="text-xl font-semibold text-center">Add Receipt</h2>
 
       <div>
         <Label>Phone Number (optional)</Label>

@@ -21,7 +21,12 @@ interface Expenditure {
   payment_type: string
   payment_reference?: string
   tag: string
+  subtag?: string | null
+  tags?: {
+    tag_name: string
+  } | null
   date: string
+  created_at: string
   image_url?: string
   signed_image_url?: string | null
   actual_amt_credit_dt: string | null
@@ -45,6 +50,7 @@ export default function ExpenditureHistory() {
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [allSelected, setAllSelected] = useState(true)
+  const [userRole, setUserRole] = useState<string>('user')
   const [startDate, setStartDate] = useState(() => {
     const d = new Date()
     d.setMonth(d.getMonth() - 1)
@@ -53,6 +59,8 @@ export default function ExpenditureHistory() {
   const [endDate, setEndDate] = useState(() => {
     return new Date().toISOString().split('T')[0]
   })
+  const [recordStartDate, setRecordStartDate] = useState('')
+  const [recordEndDate, setRecordEndDate] = useState('')
   const [paymentRefFilter, setPaymentRefFilter] = useState('')
   const [showPendingCheques, setShowPendingCheques] = useState(false)
   const [filterEmail, setFilterEmail] = useState('')
@@ -76,6 +84,15 @@ export default function ExpenditureHistory() {
       }
     }
     init()
+
+    const fetchRole = async () => {
+      try {
+        const response = await fetch('/api/auth/session')
+        const data = await response.json()
+        if (data?.user?.role) setUserRole(data.user.role)
+      } catch (error) {}
+    }
+    fetchRole()
   }, [])
 
   useEffect(() => {
@@ -93,6 +110,8 @@ export default function ExpenditureHistory() {
         if (filterPaymentType && filterPaymentType !== '__all__') params.append('paymentType', filterPaymentType)
         if (filterMinAmount.trim()) params.append('minAmount', filterMinAmount.trim())
         if (filterMaxAmount.trim()) params.append('maxAmount', filterMaxAmount.trim())
+        if (recordStartDate) params.append('recordStartDate', recordStartDate)
+        if (recordEndDate) params.append('recordEndDate', recordEndDate)
 
         const response = await fetch(`/api/expenditures?${params.toString()}`)
         if (!response.ok) throw new Error('Failed to fetch expenditures')
@@ -112,7 +131,7 @@ export default function ExpenditureHistory() {
     }
 
     fetchExpenditures()
-  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail, filterId, filterTitle, filterPaymentType, filterMinAmount, filterMaxAmount])
+  }, [startDate, endDate, selectedTags, paymentRefFilter, showPendingCheques, filterEmail, filterId, filterTitle, filterPaymentType, filterMinAmount, filterMaxAmount, recordStartDate, recordEndDate])
 
   const toggleTag = (tagId: string) => {
     const updated = selectedTags.includes(tagId)
@@ -174,11 +193,14 @@ export default function ExpenditureHistory() {
       'Expense ID': exp.id.substring(0, 8),
       Title: exp.title,
       'Created By': exp.users?.email || 'System',
+      Tag: exp.tags?.tag_name || '',
+      Subtag: exp.subtag || '',
       'Payment Type': exp.payment_type,
       'Payment Reference': exp.payment_reference || '',
       'Amount (₹)': exp.amount,
       Date: formatDateDDMMYYYY(exp.date),
-      'Debited On': formatDateDDMMYYYY(exp.actual_amt_credit_dt)
+      'Debited On': formatDateDDMMYYYY(exp.actual_amt_credit_dt),
+      'Record Create Date': formatDateDDMMYYYY(exp.created_at)
     }))
 
     const csv = Papa.unparse(csvData)
@@ -208,6 +230,8 @@ export default function ExpenditureHistory() {
     setFilterMaxAmount('')
     setSelectedTags(tags.map(t => t.tag_id))
     setAllSelected(true)
+    setRecordStartDate('')
+    setRecordEndDate('')
   }
 
   return (
@@ -220,14 +244,41 @@ export default function ExpenditureHistory() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 items-end">
-        <div>
-          <Label>Start Date</Label>
-          <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+        {/* Date Boxes */}
+        <div className="flex gap-4 w-full">
+          <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Expense Date</span>
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">From</label>
+                  <Input type="date" className="w-36 text-sm" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">To</label>
+                  <Input type="date" className="w-36 text-sm" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Record Create Date</span>
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1">From</label>
+                  <Input type="date" className="w-36 text-sm" value={recordStartDate} onChange={e => setRecordStartDate(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">To</label>
+                  <Input type="date" className="w-36 text-sm" value={recordEndDate} onChange={e => setRecordEndDate(e.target.value)} />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <Label>End Date</Label>
-          <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-        </div>
+
         <div>
           <Label>Payment Ref</Label>
           <Input value={paymentRefFilter} onChange={e => setPaymentRefFilter(e.target.value)} placeholder="Filter by ref" />
@@ -301,19 +352,22 @@ export default function ExpenditureHistory() {
               <th className="border px-3 py-2 text-left">Expense ID</th>
               <th className="border px-3 py-2 text-left">Title</th>
               <th className="border px-3 py-2 text-left">Created By</th>
+              <th className="border px-3 py-2 text-left">Tag</th>
+              <th className="border px-3 py-2 text-left">Subtag</th>
               <th className="border px-3 py-2 text-left">Payment Type</th>
               <th className="border px-3 py-2 text-left">Ref</th>
               <th className="border px-3 py-2 text-right">Amount</th>
               <th className="border px-3 py-2 text-left">Date</th>
               <th className="border px-3 py-2 text-left">Debited On</th>
+              <th className="border px-3 py-2 text-left">Record Create Date</th>
               <th className="border px-3 py-2 text-center">Image</th>
-              <th className="border px-3 py-2 text-center">Actions</th>
+              {userRole === 'admin' && <th className="border px-3 py-2 text-center">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {expenditures.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center p-4 text-gray-500">No expenditures found.</td>
+                <td colSpan={11} className="text-center p-4 text-gray-500">No expenditures found.</td>
               </tr>
             ) : (
               expenditures.map(exp => (
@@ -321,6 +375,8 @@ export default function ExpenditureHistory() {
                   <td className="border px-3 py-2 text-gray-500 font-mono text-xs">{exp.id.substring(0, 8)}</td>
                   <td className="border px-3 py-2">{exp.title}</td>
                   <td className="border px-3 py-2 text-gray-600">{exp.users?.email || 'System'}</td>
+                  <td className="border px-3 py-2">{exp.tags?.tag_name || '-'}</td>
+                  <td className="border px-3 py-2">{exp.subtag || '-'}</td>
                   <td className="border px-3 py-2">{exp.payment_type}</td>
                   <td className="border px-3 py-2">{exp.payment_reference || '-'}</td>
                   <td className="border px-3 py-2 text-right">₹{exp.amount}</td>
@@ -333,6 +389,7 @@ export default function ExpenditureHistory() {
                       onChange={e => updateCreditDate(exp.id, e.target.value)}
                     />
                   </td>
+                  <td className="border px-3 py-2">{formatDateDDMMYYYY(exp.created_at)}</td>
                   <td className="border px-3 py-2 text-center">
                     {exp.signed_image_url ? (
                       <a href={exp.signed_image_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">
@@ -342,12 +399,13 @@ export default function ExpenditureHistory() {
                       <span className="text-gray-400 italic">None</span>
                     )}
                   </td>
-                  <td className="border px-3 py-2 text-center space-x-2">
-
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(exp.id)}>
-                      Delete
-                    </Button>
-                  </td>
+                  {userRole === 'admin' && (
+                    <td className="border px-3 py-2 text-center space-x-2">
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(exp.id)}>
+                        Delete
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

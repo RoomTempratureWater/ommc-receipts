@@ -53,9 +53,9 @@ export default function ChurchFundHistory() {
       const from = new Date(startDate)
       const to = new Date(endDate)
 
-      // FIX: Parse the DD/MM/YYYY string into a Date object for filtering
+      // FIX: Parse the DD-MM-YYYY string into a Date object for filtering
       const filtered = data.filter((row: Attribution) => {
-        const [day, month, year] = row.formatted_date.split('/').map(Number)
+        const [day, month, year] = row.formatted_date.split('-').map(Number)
         const rowDate = new Date(year, month - 1, day)
         return rowDate >= from && rowDate <= to
       })

@@ -14,6 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -24,6 +25,7 @@ export default function DashboardLayout({
       const { data } = await getUser()
       if (data?.user) {
         setUserEmail(data.user.email ?? null)
+        setUserRole(data.user.role ?? 'user')
       } else {
         router.push('/login')
       }
@@ -75,18 +77,24 @@ export default function DashboardLayout({
         </button>
       </div>
 
-      <SidebarButton label="Add Invoice" emoji="➕" href="/dashboard/add-invoice" />
-      <SidebarButton label="Invoice History" emoji="📜" href="/dashboard/invoice-history" />
-      <SidebarButton label="Tags" emoji="🏷️" href="/dashboard/tags" />
+      <SidebarButton label="Add Receipt" emoji="➕" href="/dashboard/add-invoice" />
+      <SidebarButton label="Receipt History" emoji="📜" href="/dashboard/invoice-history" />
       <SidebarButton label="Church Fund History" emoji="🧾" href="/dashboard/church-funds" />
-      <SidebarButton label="Add Expenditure" emoji="💸" href="/dashboard/add-expenditure" />
-      <SidebarButton label="Expenditure History" emoji="📉" href="/dashboard/expenditure-history" />
-      <SidebarButton label="Cashbook" emoji="📊" href="/dashboard/cashbook" />
-      <SidebarButton label="Ledger" emoji="📓" href="/dashboard/ledger" />
-      <SidebarButton label="Members" emoji="🧑" href="/dashboard/members" />
-      <SidebarButton label="Upload Members" emoji="⬆️" href="/dashboard/upload-members" />
-      <SidebarButton label="Database Backup" emoji="💾" href="/dashboard/backup" />
-      <SidebarButton label="Recycle Bin" emoji="🗑️" href="/dashboard/recycle-bin" />
+      <SidebarButton label="Members Master" emoji="🧑" href="/dashboard/members" />
+
+      {userRole === 'admin' && (
+        <>
+          <SidebarButton label="Tags" emoji="🏷️" href="/dashboard/tags" />
+          <SidebarButton label="Add Expenditure" emoji="💸" href="/dashboard/add-expenditure" />
+          <SidebarButton label="Expenditure History" emoji="📉" href="/dashboard/expenditure-history" />
+          <SidebarButton label="Cashbook" emoji="📊" href="/dashboard/cashbook" />
+          <SidebarButton label="Ledger" emoji="📓" href="/dashboard/ledger" />
+          <SidebarButton label="Upload Members" emoji="⬆️" href="/dashboard/upload-members" />
+          <SidebarButton label="Users" emoji="👥" href="/dashboard/users" />
+          <SidebarButton label="Database Backup" emoji="💾" href="/dashboard/backup" />
+          <SidebarButton label="Recycle Bin" emoji="🗑️" href="/dashboard/recycle-bin" />
+        </>
+      )}
 
       <div className="mt-auto text-sm pt-4 border-t" style={{ borderColor: 'var(--color-sidebar-border)' }}>
         <p className="mb-2">Signed in as:</p>

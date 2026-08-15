@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     // Get user from Supabase auth.users table
     const user = await db.users.findFirst({
       where: { id: decoded.userId },
-      select: { id: true, email: true, created_at: true }
+      select: { id: true, email: true, created_at: true, user_roles: true }
     })
 
     if (!user) {
@@ -31,8 +31,21 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const role = user.user_roles?.role || 'user';
+    const status = user.user_roles?.status || 'active';
+
+    if (status === 'revoked') {
+      return NextResponse.json(
+        { user: null },
+        { status: 401 }
+      )
+    }
+
+    // Exclude nested user_roles from response and return flattened
+    const { user_roles, ...userData } = user;
+
     return NextResponse.json(
-      { user },
+      { user: { ...userData, role } },
       { status: 200 }
     )
   } catch (error) {
