@@ -77,10 +77,10 @@ export default function DashboardLayout({
         </button>
       </div>
 
-      <SidebarButton label="Add Invoice" emoji="➕" href="/dashboard/add-invoice" />
-      <SidebarButton label="Invoice History" emoji="📜" href="/dashboard/invoice-history" />
+      <SidebarButton label="Add Receipt" emoji="➕" href="/dashboard/add-invoice" />
+      <SidebarButton label="Receipt History" emoji="📜" href="/dashboard/invoice-history" />
       <SidebarButton label="Church Fund History" emoji="🧾" href="/dashboard/church-funds" />
-      <SidebarButton label="Members" emoji="🧑" href="/dashboard/members" />
+      <SidebarButton label="Members Master" emoji="🧑" href="/dashboard/members" />
 
       {userRole === 'admin' && (
         <>

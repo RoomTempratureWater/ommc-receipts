@@ -164,7 +164,7 @@ export default function Cashbook() {
   const downloadCSV = () => {
     let csv = `Cashbook Report (${startDate} to ${endDate})\n\n`
 
-    csv += `Invoices\nTag,Subtag,Cash,Bank\n`
+    csv += `Receipts\nTag,Subtag,Cash,Bank\n`
     Object.entries(invoiceTotals).forEach(([tagId, { cash, bank, subtags }]) => {
       const tagName = invoiceTagsList.find(t => t.tag_id === tagId)?.tag_name || tagId
       const subEntries = Object.entries(subtags)
@@ -225,13 +225,13 @@ export default function Cashbook() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Invoices */}
+        {/* Receipts */}
         <Card className="flex-1 p-4">
-          <h3 className="font-semibold mb-2">Invoices</h3>
+          <h3 className="font-semibold mb-2">Receipts</h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="mb-2">
-                Invoice Tags ({selectedInvoiceTags.length})
+                Receipt Tags ({selectedInvoiceTags.length})
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="p-2 max-h-64 overflow-auto space-y-2">

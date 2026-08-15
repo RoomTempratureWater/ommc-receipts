@@ -77,7 +77,7 @@ export default function LedgerPage() {
     const rows = [
       [`"LEDGER from ${fromDate} to ${toDate}"`],
       [],
-      ['Invoice Date', 'Invoice Tag', 'Inv Cash', 'Inv Bank', 'Inv Total', 'Expense Date', 'Expense Tag', 'Exp Cash', 'Exp Bank', 'Exp Total']
+      ['Receipt Date', 'Receipt Tag', 'Rec Cash', 'Rec Bank', 'Rec Total', 'Expense Date', 'Expense Tag', 'Exp Cash', 'Exp Bank', 'Exp Total']
     ]
 
     for (let i = 0; i < maxLen; i++) {
@@ -150,11 +150,11 @@ export default function LedgerPage() {
       {!loading && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-green-50 p-4 rounded-lg shadow-sm border border-green-100">
-            <h3 className="text-green-800 text-sm font-medium">Total Invoices (Cash)</h3>
+            <h3 className="text-green-800 text-sm font-medium">Total Receipts (Cash)</h3>
             <p className="text-2xl font-bold text-green-900">{invoiceCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg shadow-sm border border-green-100">
-            <h3 className="text-green-800 text-sm font-medium">Total Invoices (Bank)</h3>
+            <h3 className="text-green-800 text-sm font-medium">Total Receipts (Bank)</h3>
             <p className="text-2xl font-bold text-green-900">{invoiceBank.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </div>
           <div className="bg-red-50 p-4 rounded-lg shadow-sm border border-red-100">
@@ -172,11 +172,11 @@ export default function LedgerPage() {
         <div className="text-center py-10">Loading ledger data...</div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Invoices */}
+          {/* Receipts */}
           <div className="bg-white p-4 rounded-lg shadow border">
-            <h2 className="text-xl font-semibold mb-4 text-green-700">Invoices</h2>
+            <h2 className="text-xl font-semibold mb-4 text-green-700">Receipts</h2>
             {invoices.length === 0 ? (
-              <p className="text-gray-500">No invoice data available.</p>
+              <p className="text-gray-500">No receipt data available.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">

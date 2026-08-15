@@ -4,7 +4,7 @@ import Image from 'next/image';
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
-  return date.toLocaleDateString('en-GB'); 
+  return date.toLocaleDateString('en-GB').replace(/\//g, '-'); 
 }
 
 // Helper for "Month Year"
@@ -60,7 +60,14 @@ export function ChurchReceipt(invoice: any) {
   
   let effective = "";
   if (invoice.effective_from && invoice.effective_to) {
-    effective = `${formatMonth(invoice.effective_from)} to ${formatMonth(invoice.effective_to)}`;
+    const fromMonthStr = formatMonth(invoice.effective_from);
+    const toMonthStr = formatMonth(invoice.effective_to);
+    
+    if (fromMonthStr === toMonthStr) {
+      effective = fromMonthStr;
+    } else {
+      effective = `${fromMonthStr} to ${toMonthStr}`;
+    }
   } else if (invoice.effective_from) {
     effective = formatMonth(invoice.effective_from);
   }

@@ -233,7 +233,7 @@ export default function InvoiceHistory() {
     if (!invoices.length) return alert('No invoices to export')
     
     const csvData = invoices.map(inv => ({
-      'Invoice No.': inv.id_short,
+      'Receipt No.': inv.id_short,
       Title: inv.title,
       Name: inv.name,
       Phone: inv.phone,
@@ -284,7 +284,7 @@ export default function InvoiceHistory() {
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-4 justify-between">
         <div className="flex items-center gap-4 w-full">
-          <h2 className="text-xl font-semibold">Invoice Dashboard</h2>
+          <h2 className="text-xl font-semibold">Receipt Dashboard</h2>
           <Button variant="outline" size="sm" onClick={handleResetFilters}>Reset Filters</Button>
           <Button variant="outline" size="sm" onClick={handleExportCSV}>Export CSV</Button>
         </div>
@@ -319,7 +319,7 @@ export default function InvoiceHistory() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Invoice No.</label>
+          <label className="block text-sm font-medium mb-1">Receipt No.</label>
           <Input
             placeholder="Filter by ID"
             value={filterIdShort}
@@ -372,7 +372,7 @@ export default function InvoiceHistory() {
         <div className="flex gap-4 w-full">
           <div className="border rounded-md p-3 flex gap-4 bg-muted/20 flex-1">
             <div className="flex flex-col">
-              <span className="font-semibold text-sm mb-2 text-muted-foreground">Invoice Date</span>
+              <span className="font-semibold text-sm mb-2 text-muted-foreground">Receipt Date</span>
               <div className="flex gap-4">
                 <div>
                   <label className="block text-xs font-medium mb-1">From</label>
@@ -477,7 +477,7 @@ export default function InvoiceHistory() {
         <table className="min-w-full border-collapse table-auto">
           <thead className="sticky top-0 bg-muted z-10">
             <tr>
-              <th className="border px-3 py-2 text-left">Invoice No.</th>
+              <th className="border px-3 py-2 text-left">Receipt No.</th>
               <th className="border px-3 py-2 text-left">Title</th>
               <th className="border px-3 py-2 text-left">Name</th>
               <th className="border px-3 py-2 text-left">Phone</th>
