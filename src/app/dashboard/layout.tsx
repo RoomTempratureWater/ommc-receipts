@@ -81,6 +81,7 @@ export default function DashboardLayout({
       <SidebarButton label="Receipt History" emoji="📜" href="/dashboard/invoice-history" />
       <SidebarButton label="Church Fund History" emoji="🧾" href="/dashboard/church-funds" />
       <SidebarButton label="Members Master" emoji="🧑" href="/dashboard/members" />
+      <SidebarButton label="Church Fund Report" emoji="📅" href="/dashboard/church-fund-report" />
 
       {userRole === 'admin' && (
         <>
