@@ -73,10 +73,10 @@ export async function GET(request: NextRequest) {
     
     if (dateFilterMode === 'actual') {
       if (effectiveEndDate) {
-        where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, lte: new Date(effectiveEndDate + 'T23:59:59') }
+        where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, lte: new Date(effectiveEndDate + 'T23:59:59.999Z') }
       }
       if (effectiveStartDate) {
-        where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, gte: new Date(effectiveStartDate + 'T00:00:00') }
+        where.actual_amt_credit_dt = { ...where.actual_amt_credit_dt, gte: new Date(effectiveStartDate + 'T00:00:00Z') }
       }
       // Must not be null if filtering by actual credit date
       if (!where.actual_amt_credit_dt) {
@@ -86,18 +86,18 @@ export async function GET(request: NextRequest) {
       }
     } else {
       if (effectiveEndDate) {
-        where.date = { ...where.date, lte: new Date(effectiveEndDate + 'T23:59:59') }
+        where.date = { ...where.date, lte: new Date(effectiveEndDate + 'T23:59:59.999Z') }
       }
       if (effectiveStartDate) {
-        where.date = { ...where.date, gte: new Date(effectiveStartDate + 'T00:00:00') }
+        where.date = { ...where.date, gte: new Date(effectiveStartDate + 'T00:00:00Z') }
       }
     }
 
     if (recordEndDate) {
-      where.created_at = { ...where.created_at, lte: new Date(recordEndDate + 'T23:59:59') }
+      where.created_at = { ...where.created_at, lte: new Date(recordEndDate + 'T23:59:59.999Z') }
     }
     if (recordStartDate) {
-      where.created_at = { ...where.created_at, gte: new Date(recordStartDate + 'T00:00:00') }
+      where.created_at = { ...where.created_at, gte: new Date(recordStartDate + 'T00:00:00Z') }
     }
 
     if (onlyPendingCredit === 'true') where.actual_amt_credit_dt = null
