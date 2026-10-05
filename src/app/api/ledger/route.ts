@@ -9,10 +9,10 @@ export async function GET(request: NextRequest) {
 
     const dateFilter: any = { not: null }
     if (fromDate) {
-      dateFilter.gte = new Date(fromDate + 'T00:00:00')
+      dateFilter.gte = new Date(fromDate + 'T00:00:00Z')
     }
     if (toDate) {
-      dateFilter.lte = new Date(toDate + 'T23:59:59')
+      dateFilter.lte = new Date(toDate + 'T23:59:59.999Z')
     }
 
     // Group invoices

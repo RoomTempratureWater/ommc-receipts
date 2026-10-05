@@ -125,7 +125,7 @@ export default function AddInvoiceForm() {
             const sorted = attributions.sort((a: any, b: any) => 
               new Date(b.effective_month).getTime() - new Date(a.effective_month).getTime()
             )
-            const formatted = format(new Date(sorted[0].effective_month), 'MMMM')
+            const formatted = format(new Date(sorted[0].effective_month), 'MMM yyyy')
             setLastChurchFundDate(formatted)
           } else {
             setLastChurchFundDate(null)
@@ -355,10 +355,15 @@ export default function AddInvoiceForm() {
       )}
 
       {selectedTagName === 'Church Fund' && (
-        <div className="space-y-2">
-          <p className="text-sm text-gray-600">
-            Last church fund paid in: {lastChurchFundDate ?? 'null'}
-          </p>
+        <div className="space-y-4">
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md shadow-sm mb-4">
+            <h3 className="text-blue-800 font-medium text-sm uppercase tracking-wider">
+              Last Church Fund Paid
+            </h3>
+            <p className="text-blue-900 text-2xl font-bold mt-1">
+              {lastChurchFundDate ?? 'No previous record'}
+            </p>
+          </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               checked={useSingleMonth}
